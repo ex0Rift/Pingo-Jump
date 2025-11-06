@@ -1,4 +1,4 @@
-import pygame , colours , random
+import pygame , colours , random , sys
 
 
 pygame.init()
@@ -26,7 +26,8 @@ activeClouds=[]             #defining list for clouds data
 clouds = []                 #defining useable cloud list
 keybox = True               #determins whether or not to show the keybind turotial
 isLevelChange = True        #activates part to increment what level it is currently
-levelID = -1                #This is what level is currently in use
+levelID = -1                #This is what level is currently in use (starts on -1 to allow it to get the data)
+amountOfLevels = 1          #amount of levels in game
 collected_coins = 0         #how many coins the player has
 winTimer = 0                #defines the variable for the length of the win timer
 winContinue = False         #determins weather the next screen after winning is ready to be shown
@@ -113,6 +114,12 @@ empty_winStar = pygame.transform.scale(empty_winStar,(64,64))
 continueButton = pygame.image.load("UI/continueButton.png")
 continueButton = pygame.transform.scale(continueButton,(96*2,32*2))
 
+levelCard = pygame.image.load("UI/levelCard.png")
+levelCard = pygame.transform.scale(levelCard,(screenWidth-50,25*6))
+
+levelSelectButton = pygame.image.load("UI/levelSelectButton.png")
+levelSelectButton = pygame.transform.scale(levelSelectButton,(133*2,32*2))
+
 #-----levels
 firstLevel = pygame.image.load("levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))
@@ -179,20 +186,25 @@ def MainMenu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                menu = False
+                pygame.quit()
+                sys.exit(0)
             if event.type == pygame.KEYDOWN:
                 if (
-                    event.key == pygame.K_ESCAPE or
                     event.key == pygame.K_RETURN or
                     event.key == pygame.K_SPACE
                     ):
                     menu = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit(0)
         
         screen.fill(colours.sky)
 
         screen.blit(text_title,(80,50))
 
         screen.blit(start_button,(336,300))
+
+        screen.blit(levelSelectButton,(265,380))
 
         random_positions=[player_sprite,player_right,player_right_walk,player_left,player_left_walk]
         for i in range(0,screenWidth,64):
@@ -207,6 +219,34 @@ def MainMenu():
 
         pygame.display.flip()
         clock.tick(10)
+
+def LevelSelect():
+    levelRun = True
+    card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
+    while levelRun:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit(0)
+                if event.key == pygame.K_RETURN:
+                    levelRun = False
+
+        screen.fill(colours.sky)
+
+        for i in range(0,amountOfLevels):
+            level_text = card_font.render(f"Level {i}",True,colours.black)
+            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+25))
+            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+25)+40))
+
+
+
+        pygame.display.flip()
+        clock.tick(60)
+
 
 def WinCon():
     global winTimer , flag_y , flagTexture , score
@@ -287,7 +327,7 @@ for i in range(amountOfClouds):
     activeClouds.append([tempcloud,tempX,tempY,tempspeed])
 
 
-##RUNS MAIN MENU FIRST
+##RUNS MAIN MENU FIRST AND AFTER LEVEL SELECT
 MainMenu()
 ##
 
@@ -308,12 +348,11 @@ while running:
     past_player_x = player_x
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-            dead = False
+            pygame.quit()
+            sys.exit(0)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                running = False
-                dead = False
+                LevelSelect()
 
     #movement keys, these are smoother beacuse they dont rely on the small wait
     keys = pygame.key.get_pressed()
@@ -507,7 +546,8 @@ while dead:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            dead = False
+            pygame.quit()
+            sys.exit(0)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 dead = False
