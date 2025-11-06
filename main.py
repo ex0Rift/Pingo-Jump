@@ -110,6 +110,9 @@ winStar = pygame.transform.scale(winStar,(64,64))
 empty_winStar = pygame.image.load("UI/emptyStar.png")
 empty_winStar = pygame.transform.scale(empty_winStar,(64,64))
 
+continueButton = pygame.image.load("UI/continueButton.png")
+continueButton = pygame.transform.scale(continueButton,(96*2,32*2))
+
 #-----levels
 firstLevel = pygame.image.load("levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))
@@ -207,23 +210,28 @@ def MainMenu():
 
 def WinCon():
     global winTimer , flag_y , flagTexture , score
+    
+    
     if winTimer == 0:
-        winTimer = 120
+        winTimer = 30
+        #calculate score from coins and time
         score = (500*collected_coins)-time//2
         if score < 0:
             score = 0
 
+    #flag animation
     if winTimer % 10 == 0:
         if flagTexture == flagOne:
             flagTexture = flagTwo
         else:
             flagTexture = flagOne
-
-    screen.blit(flagTexture,(flag_x,flag_y))
-    
     if flag_y > 95:
         flag_y -= 2
 
+    #draw flag
+    screen.blit(flagTexture,(flag_x,flag_y))
+    
+    #condition for continuing the win time or closing it
     if winTimer == 1:
         if winContinue:
             winTimer = 0
@@ -236,6 +244,7 @@ def WinCon():
         return False
 
 def WinUI():
+    global winContinue
     winTime_text = pixel_font.render(f"Time: {formatted_time}",True,colours.black)
     winCoins_text = pixel_font.render(f"Coins: {collected_coins}",True,colours.black)
     winScore_text = pixel_font.render(f"Score: {score}",True,colours.black)
@@ -257,6 +266,15 @@ def WinUI():
 
     screen.blit(winScore_text,(25,220))
 
+    screen.blit(continueButton,(50,500))
+
+    #checking for button presses
+    if 50 < mouse_Pos[0] < 50+continueButton.get_width() and 500 < mouse_Pos[1] < 500+continueButton.get_height():
+        if mouse_Pressed[0]:
+            winContinue = True
+
+
+
 def CloudGen():
     cloud = random.choice(clouds)
     x = random.randint(0,screenWidth)
@@ -275,11 +293,16 @@ MainMenu()
 
 current_sprite = player_sprite
 while running:
+    mouse_Pos = pygame.mouse.get_pos()
+    mouse_Pressed = pygame.mouse.get_pressed()
+
+
     if isLevelChange:
         levelID +=1
         player_x = 200
         score = 0
         currentExit_x = exitGates[levelID][0]
+        winContinue = False
         isLevelChange = False
 
     past_player_x = player_x
@@ -478,8 +501,8 @@ secondfont = pygame.font.Font(None,30)
 textSurface = font.render("You died!",True,colours.white)
 quitText = secondfont.render("Quit",True,colours.black)
 while dead:
-    mousePos = pygame.mouse.get_pos()
-    mousePressed = pygame.mouse.get_pressed()
+    mouse_Pos = pygame.mouse.get_pos()
+    mouse_Pressed = pygame.mouse.get_pressed()
 
 
     for event in pygame.event.get():
@@ -498,8 +521,8 @@ while dead:
 
     screen.blit(quitText,((screenWidth//2)-50,(screenHeight//2)+115))
 
-    if mousePressed[0]:
-        if (screenWidth//2)-80 < mousePos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mousePos[1] < (screenHeight//2)+150:
+    if mouse_Pressed[0]:
+        if (screenWidth//2)-80 < mouse_Pos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mouse_Pos[1] < (screenHeight//2)+150:
             dead = False
 
 
