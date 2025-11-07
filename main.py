@@ -31,7 +31,7 @@ amountOfLevels = 1          #amount of levels in game
 collected_coins = 0         #how many coins the player has
 winTimer = 0                #defines the variable for the length of the win timer
 winContinue = False         #determins weather the next screen after winning is ready to be shown
-Levelscore = 0              #final score each level determined by the amount of coins / least amoun of time
+score = 0                   #final score each level determined by the amount of coins / least amoun of time
 totalScore = 0              #The total score across multiple levels
 flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
@@ -169,7 +169,14 @@ coins=[
     [0,ground_x+2060,90],
     [0,ground_x+2120,90],
     [0,ground_x+2180,90],
-    [0,ground_x+1250,450]
+    [0,ground_x+1250,450],
+    [0,ground_x+3050,40],
+    [0,ground_x+3110,40],
+    [0,ground_x+3170,40],
+    [0,ground_x+3230,40],
+    [0,ground_x+4220,115],
+    [0,ground_x+4270,115],
+    [0,ground_x+4320,115]
 
 ]
 
@@ -243,6 +250,7 @@ def LevelSelect():
     global levelID
     levelRun = True
     card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
+    score_text = card_font.render(f"Score: {totalScore}",True,colours.black)
     while levelRun:
         mouse_Pos = pygame.mouse.get_pos()
         mouse_Pressed = pygame.mouse.get_pressed()
@@ -258,12 +266,14 @@ def LevelSelect():
 
         screen.fill(colours.sky)
 
+        screen.blit(backButton,(25,10))
+        screen.blit(score_text,(screenWidth-score_text.get_width()-20,5))
+        
+
         for i in range(0,amountOfLevels):
             level_text = card_font.render(f"Level {i}",True,colours.black)
             screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+85))
             screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+85)+40))
-
-            screen.blit(backButton,(25,10))
 
             if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+85) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+85)+levelCard.get_height():
                 if mouse_Pressed[0]:
@@ -282,13 +292,16 @@ def LevelSelect():
         clock.tick(120)
 
 def WinCon():
-    global winTimer , flag_y , flagTexture , score
+    global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time
     
     
     if winTimer == 0:
         winTimer = 30
-        #calculate score from coins and time
+        #calculate score from coins and time and resets them
         score = (500*collected_coins)-time//2
+        totalScore += score
+        collected_coins = 0
+        time = 0
         if score < 0:
             score = 0
 
@@ -390,7 +403,6 @@ while running:
     if isLevelChange:
         player_x = 200
         ground_x = 0
-        totalScore += score
         score = 0
         currentExit_x = exitGates[levelID][0]
         coins_editable = copy.deepcopy(coins)
