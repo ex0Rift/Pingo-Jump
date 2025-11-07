@@ -35,6 +35,8 @@ score = 0                   #final score each level determined by the amount of 
 totalScore = 0              #The total score across multiple levels
 flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
+spikeBallAnimation = 0      #defines spikeball animation loop control
+spikeBallFrame = ''         #defines which spikeball fram it is on
 
 
 #text for in game
@@ -87,6 +89,12 @@ flagOne = pygame.transform.scale(flagOne,(32*4,16*4))
 
 flagTwo = pygame.image.load("flagTwo.png")
 flagTwo = pygame.transform.scale(flagTwo,(32*4,16*4))
+
+spikeBall = pygame.image.load("spikeBall.png")
+spikeBall = pygame.transform.scale(spikeBall,(64,64))
+
+spikeBall_one = pygame.image.load("spikeBall_one.png")
+spikeBall_one = pygame.transform.scale(spikeBall_one,(64,64))
 
 
 #-----UI
@@ -174,11 +182,16 @@ coins=[
     [0,ground_x+3110,40],
     [0,ground_x+3170,40],
     [0,ground_x+3230,40],
-    [0,ground_x+4220,115],
-    [0,ground_x+4270,115],
-    [0,ground_x+4320,115]
+    [0,ground_x+4200,115],
+    [0,ground_x+4250,115],
+    [0,ground_x+4300,115]
 
 ]
+
+spikeBalls = [
+    [0,ground_x+200,450]
+]
+
 
 starPoints = [
     [100,1000,2000]
@@ -372,7 +385,6 @@ def WinUI():
             exitGates[levelID][0] = currentExit_x
             LevelSelect()
 
-
 def CloudGen():
     cloud = random.choice(clouds)
     x = random.randint(0,screenWidth)
@@ -505,7 +517,6 @@ while running:
     
     screen.blit(current_sprite,(player_x,player_y))
 
-
     screen.blit(exit_gate,(exitGates[levelID][0],exitGates[levelID][1]))
 
     #handling the coin rendering and collision in one for loop to save performance
@@ -518,6 +529,24 @@ while running:
         if coinCollision:
             collected_coins+=1
             del coins_editable[j]
+
+    #
+    #Enemy Code here
+    #
+    if spikeBallAnimation == 0:
+        spikeBallAnimation = 60
+
+    if spikeBallAnimation % 10 == 0:
+        if spikeBallFrame == spikeBall:
+            spikeBallFrame = spikeBall_one
+        else:
+            spikeBallFrame = spikeBall
+    spikeBallAnimation -= 1
+
+    screen.blit(spikeBallFrame,(0,0))
+
+
+
 
     #
     #  UI rendering -- over all the other elements
