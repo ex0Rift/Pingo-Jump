@@ -32,6 +32,7 @@ collected_coins = 0         #how many coins the player has
 winTimer = 0                #defines the variable for the length of the win timer
 winContinue = False         #determins weather the next screen after winning is ready to be shown
 Levelscore = 0              #final score each level determined by the amount of coins / least amoun of time
+totalScore = 0              #The total score across multiple levels
 flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
 
@@ -125,6 +126,12 @@ levelSelectButton = pygame.transform.scale(levelSelectButton,(133*2,32*2.2))
 
 levelSelectButton_Pressed = pygame.image.load("UI/levelSelectButton_Pressed.png")
 levelSelectButton_Pressed = pygame.transform.scale(levelSelectButton_Pressed,(133*2,32*2.2))
+
+backButton = pygame.image.load("UI/backButton.png")
+backButton = pygame.transform.scale(backButton,(67*2,35*2))
+
+backButton_Pressed = pygame.image.load("UI/backButton_Pressed.png")
+backButton_Pressed = pygame.transform.scale(backButton_Pressed,(67*2,35*2))
 
 #-----levels
 firstLevel = pygame.image.load("levels/firstlevel.png")
@@ -246,25 +253,33 @@ def LevelSelect():
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit(0)
+                    levelRun = False
+                    MainMenu()
 
         screen.fill(colours.sky)
 
         for i in range(0,amountOfLevels):
             level_text = card_font.render(f"Level {i}",True,colours.black)
-            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+25))
-            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+25)+40))
+            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+85))
+            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+85)+40))
 
-            if 25 < mouse_Pos[0] < 25+level_text.get_width() and (i*(levelCard.get_height()+25)+25) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+25)+levelCard.get_height():
+            screen.blit(backButton,(25,10))
+
+            if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+85) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+85)+levelCard.get_height():
                 if mouse_Pressed[0]:
                     levelID = i
+                    levelRun = False
+
+        if 25 < mouse_Pos[0] < 25+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
+                screen.blit(backButton_Pressed,(25,10))
+                if mouse_Pressed[0]:
+                    MainMenu()
                     levelRun = False
 
 
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(120)
 
 def WinCon():
     global winTimer , flag_y , flagTexture , score
@@ -375,6 +390,7 @@ while running:
     if isLevelChange:
         player_x = 200
         ground_x = 0
+        totalScore += score
         score = 0
         currentExit_x = exitGates[levelID][0]
         coins_editable = copy.deepcopy(coins)
