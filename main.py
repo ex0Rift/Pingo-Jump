@@ -9,7 +9,6 @@ pygame.display.set_caption("Pingo Jump")
 
 clock = pygame.time.Clock()
 running = True
-dead = True
 
 #variables
 time = 0                    #The clock for tracking how much time passed
@@ -71,6 +70,12 @@ player_roll = pygame.transform.scale(player_roll,(64,64))
 
 ground = pygame.image.load("place.png")
 ground = pygame.transform.scale(ground,(16*80,screenHeight))
+
+panorama = pygame.image.load("panorama.png")
+panorama = pygame.transform.scale(panorama,(256*5,64*5))
+
+background = pygame.image.load("background.png").convert()
+background = pygame.transform.scale(background,(screenWidth,screenHeight))
 
 exit_gate = pygame.image.load("exitGate.png")
 exit_gate = pygame.transform.scale(exit_gate,(22*4,42*4))
@@ -200,7 +205,7 @@ spikeBalls = [
 
 
 starPoints = [
-    [100,1000,2000]
+    [500,2000,5000]
 ]
 
 exitGates=[
@@ -310,6 +315,45 @@ def LevelSelect():
 
         pygame.display.flip()
         clock.tick(120)
+
+def Dead():
+    font = pygame.font.Font("fonts/buble.TTF",100)
+    secondfont = pygame.font.Font(None,30)
+    textSurface = font.render("You died!",True,colours.white)
+    quitText = secondfont.render("Quit",True,colours.black)
+    dead = True
+    while dead:
+        mouse_Pos = pygame.mouse.get_pos()
+        mouse_Pressed = pygame.mouse.get_pressed()
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    dead = False
+                    MainMenu()
+                if event.key == pygame.K_RETURN:
+                    dead = False
+                    MainMenu()
+        screen.fill(colours.black)
+
+        screen.blit(textSurface,((screenWidth//2)-textSurface.get_width()//2,(screenHeight//2)-textSurface.get_height()))
+
+        pygame.draw.rect(screen,colours.red,pygame.Rect((screenWidth//2)-80,(screenHeight//2)+100,100,50))
+
+        screen.blit(quitText,((screenWidth//2)-50,(screenHeight//2)+115))
+
+        if mouse_Pressed[0]:
+            if (screenWidth//2)-80 < mouse_Pos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mouse_Pos[1] < (screenHeight//2)+150:
+                dead = False
+                MainMenu()
+                
+
+        pygame.display.flip()
+        clock.tick(60)
 
 def WinCon():
     global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time
@@ -422,6 +466,7 @@ while running:
 
     if isLevelChange:
         player_x = 200
+        player_y = 400
         ground_x = 0
         score = 0
         currentExit_x = exitGates[levelID][0]
@@ -506,8 +551,9 @@ while running:
             else:
                 WinCon()
 
-    #Clears the screen
-    screen.fill(colours.sky)
+    #Makes the background
+    screen.blit(background,(0,0))
+    screen.blit(panorama,(ground_x//12,280))
 
     #
     #This will only show at the start
@@ -526,6 +572,7 @@ while running:
 
 
     #objects drawn on screen
+
     screen.blit(sign,(ground_x+850,500))
 
     screen.blit(sign,(ground_x+1900,500))
@@ -583,7 +630,9 @@ while running:
             spikeBallOffset = (player_x - i[1],player_y - i[2])
             spikeBallCollision = spikeBall_mask.overlap(player_mask,spikeBallOffset)
             if spikeBallCollision:
-                running = False
+                isLevelChange =True
+                exitGates[levelID][0] = currentExit_x
+                Dead()
 
             
 
@@ -648,7 +697,9 @@ while running:
     #Player gravity and jumping handler
     #
     if player_y+64 >= screenHeight:
-        running = False
+        isLevelChange = True
+        exitGates[levelID][0] = currentExit_x
+        Dead()
 
     if jump != 0:
         onGround = False
@@ -669,45 +720,6 @@ while running:
     
     if winTimer == 0:
         time+=1
-    pygame.display.flip()
-    clock.tick(60)
-
-#
-#Death screen
-#
-
-font = pygame.font.Font("fonts/buble.TTF",100)
-secondfont = pygame.font.Font(None,30)
-textSurface = font.render("You died!",True,colours.white)
-quitText = secondfont.render("Quit",True,colours.black)
-while dead:
-    mouse_Pos = pygame.mouse.get_pos()
-    mouse_Pressed = pygame.mouse.get_pressed()
-
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit(0)
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                dead = False
-            if event.key == pygame.K_RETURN:
-                dead = False
-    screen.fill(colours.black)
-
-    screen.blit(textSurface,((screenWidth//2)-textSurface.get_width()//2,(screenHeight//2)-textSurface.get_height()))
-
-    pygame.draw.rect(screen,colours.red,pygame.Rect((screenWidth//2)-80,(screenHeight//2)+100,100,50))
-
-    screen.blit(quitText,((screenWidth//2)-50,(screenHeight//2)+115))
-
-    if mouse_Pressed[0]:
-        if (screenWidth//2)-80 < mouse_Pos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mouse_Pos[1] < (screenHeight//2)+150:
-            dead = False
-
-
-
     pygame.display.flip()
     clock.tick(60)
 
