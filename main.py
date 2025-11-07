@@ -1,4 +1,4 @@
-import pygame , colours , random , sys
+import pygame , colours , random , sys , copy
 
 
 pygame.init()
@@ -26,7 +26,7 @@ activeClouds=[]             #defining list for clouds data
 clouds = []                 #defining useable cloud list
 keybox = True               #determins whether or not to show the keybind turotial
 isLevelChange = True        #activates part to increment what level it is currently
-levelID = -1                #This is what level is currently in use (starts on -1 to allow it to get the data)
+levelID = 0                 #This is what level is currently in use 
 amountOfLevels = 1          #amount of levels in game
 collected_coins = 0         #how many coins the player has
 winTimer = 0                #defines the variable for the length of the win timer
@@ -103,7 +103,7 @@ start_pressed = pygame.image.load("UI/StartPressed.png")
 start_pressed = pygame.transform.scale(start_pressed,(64*2.3,32*2.5))
 
 winBackground = pygame.image.load("UI/winBackground.png")
-winBackground = pygame.transform.scale(winBackground,(174*1.5,383*1.5))
+winBackground = pygame.transform.scale(winBackground,(174*1.8,383*1.5))
 
 winStar = pygame.image.load("UI/star.png")
 winStar = pygame.transform.scale(winStar,(64,64))
@@ -216,11 +216,17 @@ def MainMenu():
             if mouse_press[0]:
                 menu = False
 
+        if 265 < mouse_pos[0] < 265+levelSelectButton.get_width() and 380 < mouse_pos[1] < 380+levelSelectButton.get_height():
+            if mouse_press[0]:
+                LevelSelect()
+                menu = False
+
 
         pygame.display.flip()
         clock.tick(10)
 
 def LevelSelect():
+    global levelID
     levelRun = True
     card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
     while levelRun:
@@ -233,6 +239,7 @@ def LevelSelect():
                     pygame.quit()
                     sys.exit(0)
                 if event.key == pygame.K_RETURN:
+                    levelID = 0
                     levelRun = False
 
         screen.fill(colours.sky)
@@ -246,7 +253,6 @@ def LevelSelect():
 
         pygame.display.flip()
         clock.tick(60)
-
 
 def WinCon():
     global winTimer , flag_y , flagTexture , score
@@ -284,7 +290,7 @@ def WinCon():
         return False
 
 def WinUI():
-    global winContinue
+    global winContinue ,winTimer , isLevelChange , levelID
     winTime_text = pixel_font.render(f"Time: {formatted_time}",True,colours.black)
     winCoins_text = pixel_font.render(f"Coins: {collected_coins}",True,colours.black)
     winScore_text = pixel_font.render(f"Score: {score}",True,colours.black)
@@ -295,24 +301,34 @@ def WinUI():
     screen.blit(winCoins_text,(25,70))
 
     if score > starPoints[levelID][0]:    
-        screen.blit(winStar,(30,150))
-    else: screen.blit(empty_winStar,(30,150))
+        screen.blit(winStar,(60,150))
+    else: screen.blit(empty_winStar,(60,150))
     if score > starPoints[levelID][1]:
-        screen.blit(winStar,(110,150))
-    else: screen.blit(empty_winStar,(110,150))
+        screen.blit(winStar,(140,150))
+    else: screen.blit(empty_winStar,(140,150))
     if score > starPoints[levelID][2]:
-        screen.blit(winStar,(190,150))
-    else: screen.blit(empty_winStar,(190,150))
+        screen.blit(winStar,(220,150))
+    else: screen.blit(empty_winStar,(220,150))
 
     screen.blit(winScore_text,(25,220))
 
-    screen.blit(continueButton,(50,500))
+    screen.blit(continueButton,(75,420))
+
+    screen.blit(levelSelectButton,(40,500))
 
     #checking for button presses
-    if 50 < mouse_Pos[0] < 50+continueButton.get_width() and 500 < mouse_Pos[1] < 500+continueButton.get_height():
+    if 75 < mouse_Pos[0] < 75+continueButton.get_width() and 420 < mouse_Pos[1] < 420+continueButton.get_height():
         if mouse_Pressed[0]:
             winContinue = True
+            exitGates[levelID][0] = currentExit_x
+            levelID += 1
 
+    if 40 < mouse_Pos[0] < 40+levelSelectButton.get_width() and 500 < mouse_Pos[1] < 500+levelSelectButton.get_height():
+        if mouse_Pressed[0]:
+            winTimer = 0
+            isLevelChange = True
+            exitGates[levelID][0] = currentExit_x
+            LevelSelect()
 
 
 def CloudGen():
@@ -327,9 +343,15 @@ for i in range(amountOfClouds):
     activeClouds.append([tempcloud,tempX,tempY,tempspeed])
 
 
-##RUNS MAIN MENU FIRST AND AFTER LEVEL SELECT
+##RUNS MAIN MENU FIRST 
 MainMenu()
 ##
+
+
+# create copy of coin list so they can be reset after each restart
+
+coins_editable = copy.deepcopy(coins)
+
 
 current_sprite = player_sprite
 while running:
@@ -338,12 +360,14 @@ while running:
 
 
     if isLevelChange:
-        levelID +=1
         player_x = 200
+        ground_x = 0
         score = 0
         currentExit_x = exitGates[levelID][0]
+        coins_editable = copy.deepcopy(coins)
         winContinue = False
         isLevelChange = False
+        
 
     past_player_x = player_x
     for event in pygame.event.get():
@@ -378,7 +402,7 @@ while running:
                     ground_x+=10
 
                     
-                    for i in coins:
+                    for i in coins_editable:
                         if i[0] == levelID:
                             i[1] += 10
 
@@ -401,7 +425,7 @@ while running:
         if ground_x > -currentExit_x+360:
             ground_x-=10
 
-            for i in coins:
+            for i in coins_editable:
                     if i[0] == levelID:
                         i[1] -= 10
 
@@ -444,7 +468,7 @@ while running:
     screen.blit(exit_gate,(exitGates[levelID][0],exitGates[levelID][1]))
 
     #handling the coin rendering and collision in one for loop to save performance
-    for j , i in enumerate(coins):
+    for j , i in enumerate(coins_editable):
         if i[0] == levelID:
             screen.blit(coin,(i[1],i[2]))
 
@@ -452,7 +476,7 @@ while running:
         coinCollision = coin_mask.overlap(player_mask,coinOffset)
         if coinCollision:
             collected_coins+=1
-            del coins[j]
+            del coins_editable[j]
 
     #
     #  UI rendering -- over all the other elements
