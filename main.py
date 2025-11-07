@@ -37,6 +37,7 @@ flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
 spikeBallAnimation = 0      #defines spikeball animation loop control
 spikeBallFrame = ''         #defines which spikeball fram it is on
+spikeBallSpeed = 11          #defines the speed of which the spikeballs will move
 
 
 #text for in game
@@ -45,6 +46,8 @@ signText_001 = pixel_font.render("Walk up to the wall!",True,colours.black)
 signText_002 = pixel_font.render("trust me it wont hurt.",True,colours.black)
 signText_003 = pixel_font.render("See...you rolled up that wall ",True,colours.black)
 signText_004 = pixel_font.render("like a boss!", True, colours.black)
+signText_005 = pixel_font.render("Watch out for spike balls...",True,colours.black)
+signText_006 = pixel_font.render("They hurt quite alot!",True,colours.black)
 
 
 #loading sprites
@@ -172,6 +175,8 @@ clouds.append(cloudfour)
 clouds.append(cloudfive)
 clouds.append(cloudsix)
 
+
+#first is level its on, second is x coord , third is y coord
 coins=[
     [0,ground_x+2000,90],
     [0,ground_x+2060,90],
@@ -188,8 +193,9 @@ coins=[
 
 ]
 
+# first is the level its on , second is x coord , third is y coord ,foruth is x far left, fith is final x far right , sixth is movment direction('pos' positve 'neg' negative)
 spikeBalls = [
-    [0,ground_x+200,450]
+    [0,ground_x+4000,508,4000,4500,'pos']
 ]
 
 
@@ -206,6 +212,7 @@ player_mask = pygame.mask.from_surface(player_sprite)
 ground_mask = pygame.mask.from_surface(firstLevel)
 sign_mask = pygame.mask.from_surface(sign)
 coin_mask = pygame.mask.from_surface(coin)
+spikeBall_mask = pygame.mask.from_surface(spikeBall)
 
 def MainMenu():
     bubble_font = pygame.font.Font("fonts/buble.TTF",80)
@@ -401,9 +408,10 @@ for i in range(amountOfClouds):
 MainMenu()
 ##
 
-# create copy of coin list so they can be reset after each restart
+# create copy of lists so they can be reset after each restart
 
 coins_editable = copy.deepcopy(coins)
+spikeBalls_editable = copy.deepcopy(spikeBalls)
 
 
 current_sprite = player_sprite
@@ -418,6 +426,7 @@ while running:
         score = 0
         currentExit_x = exitGates[levelID][0]
         coins_editable = copy.deepcopy(coins)
+        spikeBalls_editable = copy.deepcopy(spikeBalls)
         winContinue = False
         isLevelChange = False
         
@@ -459,6 +468,10 @@ while running:
                         if i[0] == levelID:
                             i[1] += 10
 
+                    for i in spikeBalls_editable:
+                        if i[0] == levelID:
+                            i[1] += 10
+
                     exitGates[levelID][0] +=10
             else:
                 player_x -=10
@@ -481,6 +494,10 @@ while running:
             for i in coins_editable:
                     if i[0] == levelID:
                         i[1] -= 10
+
+            for i in spikeBalls_editable:
+                if i[0] == levelID:
+                    i[1] -= 10
 
             exitGates[levelID][0] -=10
         else:
@@ -513,6 +530,8 @@ while running:
 
     screen.blit(sign,(ground_x+1900,500))
 
+    screen.blit(sign,(ground_x+3900,500))
+
     screen.blit(firstLevel,(ground_x,0))
     
     screen.blit(current_sprite,(player_x,player_y))
@@ -524,11 +543,11 @@ while running:
         if i[0] == levelID:
             screen.blit(coin,(i[1],i[2]))
 
-        coinOffset = (player_x - i[1],player_y - i[2])
-        coinCollision = coin_mask.overlap(player_mask,coinOffset)
-        if coinCollision:
-            collected_coins+=1
-            del coins_editable[j]
+            coinOffset = (player_x - i[1],player_y - i[2])
+            coinCollision = coin_mask.overlap(player_mask,coinOffset)
+            if coinCollision:
+                collected_coins+=1
+                del coins_editable[j]
 
     #
     #Enemy Code here
@@ -543,9 +562,30 @@ while running:
             spikeBallFrame = spikeBall
     spikeBallAnimation -= 1
 
-    screen.blit(spikeBallFrame,(0,0))
 
+    for i in spikeBalls_editable:
+        if i[0] == levelID:
 
+            #This handles the movemnt of spike balls
+            if i[5] == 'pos':
+                if ground_x+i[4] >= i[1]:
+                    i[1] += spikeBallSpeed
+                else:
+                    i[5] = 'neg'
+            if i[5] == 'neg':
+                if ground_x+i[3] <= i[1]:
+                    i[1] -= spikeBallSpeed
+                else:
+                    i[5] = 'pos'
+
+            screen.blit(spikeBallFrame,(i[1],i[2]))
+
+            spikeBallOffset = (player_x - i[1],player_y - i[2])
+            spikeBallCollision = spikeBall_mask.overlap(player_mask,spikeBallOffset)
+            if spikeBallCollision:
+                running = False
+
+            
 
 
     #
@@ -564,7 +604,7 @@ while running:
         screen.blit(coin_text,(((screenWidth-clock_text.get_width())-coin_text.get_width())-70,0))
 
     #
-    #Collisions handlingscreen.blit(clock((screenWidth-clock_text.get_width())-20,0))
+    #Collisions handling
     #
 
     signOffset_first = (player_x - (ground_x+850),player_y - 500)
@@ -580,6 +620,13 @@ while running:
         screen.blit(messageBox,(50,50))
         screen.blit(signText_003,(70,80))
         screen.blit(signText_004,(70,120))
+    
+    signOffset_second = (player_x - (ground_x+3900),player_y - 500)
+    signcollision_second = sign_mask.overlap(player_mask,signOffset_second)
+    if signcollision_second:
+        screen.blit(messageBox,(50,50))
+        screen.blit(signText_005,(70,80))
+        screen.blit(signText_006,(70,120))
 
 
     offset = (player_x - ground_x, player_y - 0)
