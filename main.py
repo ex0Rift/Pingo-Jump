@@ -114,11 +114,17 @@ empty_winStar = pygame.transform.scale(empty_winStar,(64,64))
 continueButton = pygame.image.load("UI/continueButton.png")
 continueButton = pygame.transform.scale(continueButton,(96*2,32*2))
 
+continueButton_Pressed = pygame.image.load("UI/continueButton_Pressed.png")
+continueButton_Pressed = pygame.transform.scale(continueButton_Pressed,(96*2,32*2))
+
 levelCard = pygame.image.load("UI/levelCard.png")
 levelCard = pygame.transform.scale(levelCard,(screenWidth-50,25*6))
 
 levelSelectButton = pygame.image.load("UI/levelSelectButton.png")
-levelSelectButton = pygame.transform.scale(levelSelectButton,(133*2,32*2))
+levelSelectButton = pygame.transform.scale(levelSelectButton,(133*2,32*2.2))
+
+levelSelectButton_Pressed = pygame.image.load("UI/levelSelectButton_Pressed.png")
+levelSelectButton_Pressed = pygame.transform.scale(levelSelectButton_Pressed,(133*2,32*2.2))
 
 #-----levels
 firstLevel = pygame.image.load("levels/firstlevel.png")
@@ -217,6 +223,7 @@ def MainMenu():
                 menu = False
 
         if 265 < mouse_pos[0] < 265+levelSelectButton.get_width() and 380 < mouse_pos[1] < 380+levelSelectButton.get_height():
+            screen.blit(levelSelectButton_Pressed,(265,380))
             if mouse_press[0]:
                 LevelSelect()
                 menu = False
@@ -230,6 +237,9 @@ def LevelSelect():
     levelRun = True
     card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
     while levelRun:
+        mouse_Pos = pygame.mouse.get_pos()
+        mouse_Pressed = pygame.mouse.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -238,9 +248,6 @@ def LevelSelect():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit(0)
-                if event.key == pygame.K_RETURN:
-                    levelID = 0
-                    levelRun = False
 
         screen.fill(colours.sky)
 
@@ -248,6 +255,11 @@ def LevelSelect():
             level_text = card_font.render(f"Level {i}",True,colours.black)
             screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+25))
             screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+25)+40))
+
+            if 25 < mouse_Pos[0] < 25+level_text.get_width() and (i*(levelCard.get_height()+25)+25) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+25)+levelCard.get_height():
+                if mouse_Pressed[0]:
+                    levelID = i
+                    levelRun = False
 
 
 
@@ -318,12 +330,14 @@ def WinUI():
 
     #checking for button presses
     if 75 < mouse_Pos[0] < 75+continueButton.get_width() and 420 < mouse_Pos[1] < 420+continueButton.get_height():
+        screen.blit(continueButton_Pressed,(75,420))
         if mouse_Pressed[0]:
             winContinue = True
             exitGates[levelID][0] = currentExit_x
             levelID += 1
 
     if 40 < mouse_Pos[0] < 40+levelSelectButton.get_width() and 500 < mouse_Pos[1] < 500+levelSelectButton.get_height():
+        screen.blit(levelSelectButton_Pressed,(40,500))
         if mouse_Pressed[0]:
             winTimer = 0
             isLevelChange = True
@@ -346,7 +360,6 @@ for i in range(amountOfClouds):
 ##RUNS MAIN MENU FIRST 
 MainMenu()
 ##
-
 
 # create copy of coin list so they can be reset after each restart
 
