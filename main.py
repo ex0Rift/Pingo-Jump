@@ -160,6 +160,9 @@ setings_Button = pygame.transform.scale(setings_Button,(37*2,35*2))
 settingsButton_Pressed = pygame.image.load("UI/settingsButton_pressed.png")
 settingsButton_Pressed = pygame.transform.scale(settingsButton_Pressed,(37*2,35*2))
 
+inputBackground = pygame.image.load("UI/inputBackground.png")
+inputBackground = pygame.transform.scale(inputBackground,(87*2,35*2))
+
 topBar = pygame.image.load("UI/topBar.png")
 topBar = pygame.transform.scale(topBar,(screenWidth,15*6))
 
@@ -344,8 +347,18 @@ def LevelSelect():
         clock.tick(120)
 
 def Settings():
+    global key_jump , key_left , key_right
     settingsRun = True
+    changingKey = ''
+    margin = [80,350] #This is a new system im testing from commit 13. all uniform items like menus will have a margin for base placment. making things easier to code
     title_text = subTitle_font.render("Settings",True,colours.black)
+    jumpSetting_text = pixel_font.render("Jump Key:",True,colours.white)
+    jumpCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_jump)}",True,colours.white)
+    leftSetting_text = pixel_font.render("Left Key:",True,colours.white)
+    leftCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_left)}",True,colours.white)
+    rightSetting_text = pixel_font.render("Right Key:",True,colours.white)
+    rightCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_right)}",True,colours.white)
+
     while settingsRun:
         mouse_Pos = pygame.mouse.get_pos()
         mouse_Pressed = pygame.mouse.get_pressed()
@@ -357,24 +370,60 @@ def Settings():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     MainMenu()
-        
+
+            if changingKey != '':
+                if event.type == pygame.KEYDOWN:
+                    if changingKey == 'jump':
+                        key_jump = event.key
+                        jumpCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_jump)}",True,colours.white)
+                        changingKey = ''
+                    if changingKey == 'left':
+                        key_left = event.key
+                        leftCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_left)}",True,colours.white)
+                        changingKey = ''
+                    if changingKey == 'right':
+                        key_right = event.key
+                        rightCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_right)}",True,colours.white)
+                        changingKey = ''
+
         screen.fill(colours.sky)
-
         screen.blit(topBar,(0,0))
-
         screen.blit(title_text,(250,18))
-
         screen.blit(backButton,(10,10))
+
+        #keybind changing setting
+        screen.blit(jumpSetting_text,(margin[0],150))
+        screen.blit(inputBackground,(margin[1],140))
+        screen.blit(jumpCurrentKey_text,(margin[1]+20,150))
+
+        screen.blit(leftSetting_text,(margin[0],220))
+        screen.blit(inputBackground,(margin[1],210))
+        screen.blit(leftCurrentKey_text,(margin[1]+20,220))
+
+        screen.blit(rightSetting_text,(margin[0],290))
+        screen.blit(inputBackground,(margin[1],280))
+        screen.blit(rightCurrentKey_text,(margin[1]+20,290))
+
 
         if 10 < mouse_Pos[0] < 10+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
             screen.blit(backButton_Pressed,(10,10))
             if mouse_Pressed[0]:
                 MainMenu()
                 settingsRun = False
-                        
+
+        if margin[1] < mouse_Pos[0] < margin[1]+inputBackground.get_width():
+            if 140 < mouse_Pos[1] < 140+inputBackground.get_height():
+                if mouse_Pressed[0]:
+                    changingKey = 'jump' 
+            if 210 < mouse_Pos[1] < 210+inputBackground.get_height():
+                if mouse_Pressed[0]:
+                    changingKey = 'left'
+            if 280 < mouse_Pos[1] < 280+inputBackground.get_height():
+                if mouse_Pressed[0]:
+                    changingKey = 'right'           
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(120)
 
 def Dead():
     font = pygame.font.Font("fonts/buble.TTF",100)
