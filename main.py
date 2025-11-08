@@ -1,4 +1,4 @@
-import pygame , colours , random , sys , copy
+import pygame , colours , random , sys , copy , json
 
 pygame.init()
 
@@ -37,10 +37,22 @@ spikeBallAnimation = 0      #defines spikeball animation loop control
 spikeBallFrame = ''         #defines which spikeball fram it is on
 spikeBallSpeed = 11         #defines the speed of which the spikeballs will move
 renderDebug = False         #determins whether or not the debug menu will be renderd
+saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
 
+#load saved data
+with open("user_data/settings.json","r") as file:
+    try:
+        load = json.load(file)
+
+        totalScore = load["score"]
+        key_jump = load["jump"]
+        key_left = load["left"]
+        key_right =load["right"]
+    except:
+        pass
 
 #text for in game
 pixel_font = pygame.font.Font("fonts/upheavtt.ttf",40)
@@ -129,6 +141,7 @@ def MainMenu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                SaveGame()
                 pygame.quit()
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
@@ -189,6 +202,7 @@ def LevelSelect():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                SaveGame()
                 pygame.quit()
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
@@ -244,10 +258,12 @@ def Settings():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                SaveGame()
                 pygame.quit()
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    SaveGame()
                     MainMenu()
 
             if changingKey != '':
@@ -287,6 +303,7 @@ def Settings():
         if 10 < mouse_Pos[0] < 10+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
             screen.blit(backButton_Pressed,(10,10))
             if mouse_Pressed[0]:
+                SaveGame()
                 MainMenu()
                 settingsRun = False
 
@@ -317,6 +334,7 @@ def Dead():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                SaveGame()
                 pygame.quit()
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
@@ -344,7 +362,7 @@ def Dead():
         clock.tick(60)
 
 def WinCon():
-    global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time
+    global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time , saving
     
     
     if winTimer == 0:
@@ -356,6 +374,8 @@ def WinCon():
         time = 0
         if score < 0:
             score = 0
+        SaveGame()
+        saving = 60
 
     #flag animation
     if winTimer % 10 == 0:
@@ -382,7 +402,7 @@ def WinCon():
         return False
 
 def WinUI():
-    global winContinue ,winTimer , isLevelChange , levelID
+    global winContinue ,winTimer , isLevelChange , levelID , saving
     winTime_text = pixel_font.render(f"Time: {formatted_time}",True,colours.black)
     winCoins_text = pixel_font.render(f"Coins: {collected_coins}",True,colours.black)
     winScore_text = pixel_font.render(f"Score: {score}",True,colours.black)
@@ -407,6 +427,10 @@ def WinUI():
     screen.blit(continueButton,(75,420))
 
     screen.blit(levelSelectButton,(40,500))
+
+    if saving != 0:
+        screen.blit(saveIcon,((screenWidth-saveIcon.get_width())-20,(screenHeight-saveIcon.get_height())-20))
+        saving -=1
 
     #checking for button presses
     if not winContinue:
@@ -436,6 +460,17 @@ def DeBugUI():
     screen.blit(level_coords_text,(0,18))
     screen.blit(levelID_text,(0,36))
 
+def SaveGame():
+    data = {
+        "score":totalScore,
+        "jump":key_jump,
+        "left":key_left,
+        "right":key_right
+        }
+
+    with open ("user_data/settings.json", "w") as file:
+        json.dump(data, file)
+
 def CloudGen():
     cloud = random.choice(clouds)
     x = random.randint(0,screenWidth)
@@ -449,7 +484,6 @@ for i in range(amountOfClouds):
 
 
 ##RUNS MAIN MENU FIRST 
-#Settings() #DEBUG PURPOSES------------------------------------------------------<<<<
 MainMenu()
 ##
 
@@ -473,6 +507,7 @@ while running:
     past_player_x = player_x
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            SaveGame()
             pygame.quit()
             sys.exit(0)
         if event.type == pygame.KEYDOWN:
@@ -481,6 +516,9 @@ while running:
                 LevelSelect()
             if event.key == pygame.K_0:
                 renderDebug = not renderDebug
+
+            if event.key == pygame.K_9:
+                SaveGame()
 
     #movement keys, these are smoother beacuse they dont rely on the small wait
     keys = pygame.key.get_pressed() 
