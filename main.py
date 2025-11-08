@@ -36,11 +36,16 @@ flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
 spikeBallAnimation = 0      #defines spikeball animation loop control
 spikeBallFrame = ''         #defines which spikeball fram it is on
-spikeBallSpeed = 11          #defines the speed of which the spikeballs will move
+spikeBallSpeed = 11         #defines the speed of which the spikeballs will move
+key_jump = pygame.K_UP      #keybind for the jump button
+key_left = pygame.K_LEFT    #keybind for the walk left button
+key_right = pygame.K_RIGHT  #keybind for the walk right button
 
 
 #text for in game
 pixel_font = pygame.font.Font("fonts/upheavtt.ttf",40)
+header_font = pygame.font.Font("fonts/buble.TTF",80)
+subTitle_font = pygame.font.Font("fonts/buble.TTF",50)
 signText_001 = pixel_font.render("Walk up to the wall!",True,colours.black)
 signText_002 = pixel_font.render("trust me it wont hurt.",True,colours.black)
 signText_003 = pixel_font.render("See...you rolled up that wall ",True,colours.black)
@@ -149,6 +154,15 @@ backButton = pygame.transform.scale(backButton,(67*2,35*2))
 backButton_Pressed = pygame.image.load("UI/backButton_Pressed.png")
 backButton_Pressed = pygame.transform.scale(backButton_Pressed,(67*2,35*2))
 
+setings_Button = pygame.image.load("UI/settingsButton.png")
+setings_Button = pygame.transform.scale(setings_Button,(37*2,35*2))
+
+settingsButton_Pressed = pygame.image.load("UI/settingsButton_pressed.png")
+settingsButton_Pressed = pygame.transform.scale(settingsButton_Pressed,(37*2,35*2))
+
+topBar = pygame.image.load("UI/topBar.png")
+topBar = pygame.transform.scale(topBar,(screenWidth,15*6))
+
 #-----levels
 firstLevel = pygame.image.load("levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))
@@ -219,9 +233,11 @@ sign_mask = pygame.mask.from_surface(sign)
 coin_mask = pygame.mask.from_surface(coin)
 spikeBall_mask = pygame.mask.from_surface(spikeBall)
 
+#
+#Different game screens here
+#
 def MainMenu():
-    bubble_font = pygame.font.Font("fonts/buble.TTF",80)
-    text_title = bubble_font.render("Pingo Jump", True, colours.white)
+    text_title = header_font.render("Pingo Jump", True, colours.white)
 
     menu = True
     while menu:
@@ -247,17 +263,19 @@ def MainMenu():
 
         screen.blit(text_title,(80,50))
 
-        screen.blit(start_button,(336,300))
+        screen.blit(start_button,(390,300))
 
         screen.blit(levelSelectButton,(265,380))
+
+        screen.blit(setings_Button,(265,300))
 
         random_positions=[player_sprite,player_right,player_right_walk,player_left,player_left_walk]
         for i in range(0,screenWidth,64):
             r = random.choice(random_positions)
             screen.blit(r,(i,screenHeight-64))
 
-        if 336 < mouse_pos[0] < 336+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
-            screen.blit(start_pressed,(334,298))
+        if 390 < mouse_pos[0] < 390+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
+            screen.blit(start_pressed,(384,298))
             if mouse_press[0]:
                 menu = False
 
@@ -266,6 +284,13 @@ def MainMenu():
             if mouse_press[0]:
                 LevelSelect()
                 menu = False
+
+        if 265 < mouse_pos[0] < 265+setings_Button.get_width() and 300 < mouse_pos[1] < 300+setings_Button.get_width():
+            screen.blit(settingsButton_Pressed,(265,300))
+            if mouse_press[0]:
+                menu = False
+                Settings()
+
 
 
         pygame.display.flip()
@@ -291,16 +316,18 @@ def LevelSelect():
 
         screen.fill(colours.sky)
 
+        screen.blit(topBar,(0,0))
+
         screen.blit(backButton,(25,10))
         screen.blit(score_text,(screenWidth-score_text.get_width()-20,5))
         
 
         for i in range(0,amountOfLevels):
             level_text = card_font.render(f"Level {i}",True,colours.black)
-            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+85))
-            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+85)+40))
+            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+95))
+            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+95)+40))
 
-            if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+85) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+85)+levelCard.get_height():
+            if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+95) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+95)+levelCard.get_height():
                 if mouse_Pressed[0]:
                     levelID = i
                     levelRun = False
@@ -315,6 +342,39 @@ def LevelSelect():
 
         pygame.display.flip()
         clock.tick(120)
+
+def Settings():
+    settingsRun = True
+    title_text = subTitle_font.render("Settings",True,colours.black)
+    while settingsRun:
+        mouse_Pos = pygame.mouse.get_pos()
+        mouse_Pressed = pygame.mouse.get_pressed()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    MainMenu()
+        
+        screen.fill(colours.sky)
+
+        screen.blit(topBar,(0,0))
+
+        screen.blit(title_text,(250,18))
+
+        screen.blit(backButton,(10,10))
+
+        if 10 < mouse_Pos[0] < 10+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
+            screen.blit(backButton_Pressed,(10,10))
+            if mouse_Pressed[0]:
+                MainMenu()
+                settingsRun = False
+                        
+
+        pygame.display.flip()
+        clock.tick(60)
 
 def Dead():
     font = pygame.font.Font("fonts/buble.TTF",100)
@@ -449,14 +509,9 @@ for i in range(amountOfClouds):
 
 
 ##RUNS MAIN MENU FIRST 
+#Settings() #DEBUG PURPOSES------------------------------------------------------<<<<
 MainMenu()
 ##
-
-# create copy of lists so they can be reset after each restart
-
-coins_editable = copy.deepcopy(coins)
-spikeBalls_editable = copy.deepcopy(spikeBalls)
-
 
 current_sprite = player_sprite
 while running:
@@ -474,8 +529,7 @@ while running:
         spikeBalls_editable = copy.deepcopy(spikeBalls)
         winContinue = False
         isLevelChange = False
-        
-
+    
     past_player_x = player_x
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -488,13 +542,17 @@ while running:
     #movement keys, these are smoother beacuse they dont rely on the small wait
     keys = pygame.key.get_pressed()
     if winTimer == 0:
-        if keys[pygame.K_UP]:
+
+        #movment controller for jumping
+        if keys[key_jump]:
             keybox = False
             if current_sprite != player_roll:
                 current_sprite = player_roll
             if onGround:
                 jump = 25
-        if keys[pygame.K_LEFT]:
+
+        #movment controller for moving left
+        if keys[key_left]:
             keybox = False
             if current_sprite != player_roll:
                 if movingleft == 0:
@@ -521,35 +579,35 @@ while running:
             else:
                 player_x -=10
 
+        #movemnet controller for moving right
+        if keys[key_right]:
+            keybox = False
+            if current_sprite != player_roll:
+                if movingright == 0:
+                    movingright = 20
+                if movingright > 10:
+                    current_sprite = player_right_walk
+                if 0 < movingright <= 10:
+                    current_sprite = player_right
+                movingright-=1
+        
+            if ground_x > -currentExit_x+360:
+                ground_x-=10
 
-    if keys[pygame.K_RIGHT]:
-        keybox = False
-        if current_sprite != player_roll:
-            if movingright == 0:
-                movingright = 20
-            if movingright > 10:
-                current_sprite = player_right_walk
-            if 0 < movingright <= 10:
-                current_sprite = player_right
-            movingright-=1
-     
-        if ground_x > -currentExit_x+360:
-            ground_x-=10
+                for i in coins_editable:
+                        if i[0] == levelID:
+                            i[1] -= 10
 
-            for i in coins_editable:
+                for i in spikeBalls_editable:
                     if i[0] == levelID:
                         i[1] -= 10
 
-            for i in spikeBalls_editable:
-                if i[0] == levelID:
-                    i[1] -= 10
-
-            exitGates[levelID][0] -=10
-        else:
-            if player_x <= 370:
-                player_x+=10
+                exitGates[levelID][0] -=10
             else:
-                WinCon()
+                if player_x <= 370:
+                    player_x+=10
+                else:
+                    WinCon()
 
     #Makes the background
     screen.blit(background,(0,0))
