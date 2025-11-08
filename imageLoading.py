@@ -122,6 +122,9 @@ topBar = pygame.transform.scale(topBar,(screenWidth,15*6))
 saveIcon = pygame.image.load("assets/UI/saveIcon.png")
 saveIcon = pygame.transform.scale(saveIcon,(64,64))
 
+lockIcon = pygame.image.load("assets/UI/lockIcon.png")
+lockIcon = pygame.transform.scale(lockIcon,(64,64))
+
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))

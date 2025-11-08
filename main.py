@@ -22,6 +22,7 @@ movingleft = 0              #default for moving left animation
 movingright = 0             #default for moving right anumation
 activeClouds=[]             #defining list for clouds data
 clouds = []                 #defining useable cloud list
+levelStars = [0,0]          #defins the list where the quantity of stars you have for a level is stored
 keybox = True               #determins whether or not to show the keybind turotial
 isLevelChange = True        #activates part to increment what level it is currently
 levelID = 0                 #This is what level is currently in use 
@@ -51,6 +52,8 @@ with open("user_data/settings.json","r") as file:
         key_jump = load["jump"]
         key_left = load["left"]
         key_right =load["right"]
+        renderDebug = load["save"]
+        levelStars = load["stars"]
     except:
         pass
 
@@ -216,17 +219,28 @@ def LevelSelect():
 
         screen.blit(backButton,(25,10))
         screen.blit(score_text,(screenWidth-score_text.get_width()-20,5))
-        
 
-        for i in range(0,amountOfLevels):
+        for i in range(amountOfLevels):
             level_text = card_font.render(f"Level {i}",True,colours.black)
             screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+95))
             screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+95)+40))
 
+            tempScore = levelStars[i]
+            for j in range(1,4):
+                if tempScore > 0:
+                    screen.blit(winStar,((j*70)+480,(i*(levelCard.get_height()+25)+95)+45))
+                else:
+                    screen.blit(empty_winStar,((j*70)+480,(i*(levelCard.get_height()+25)+95)+45))
+                tempScore -= 1
+
             if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+95) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+95)+levelCard.get_height():
                 if mouse_Pressed[0]:
-                    levelID = i
-                    levelRun = False
+                    if i == 1 and levelStars[0] == 3 or i == 0:
+                        levelID = i
+                        levelRun = False
+
+        if levelStars[0] != 3:    
+            screen.blit(lockIcon,(460,310))
 
         if 25 < mouse_Pos[0] < 25+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
                 screen.blit(backButton_Pressed,(25,10))
@@ -369,11 +383,11 @@ def WinCon():
         winTimer = 30
         #calculate score from coins and time and resets them
         score = (500*collected_coins)-time//2
-        totalScore += score
         collected_coins = 0
         time = 0
         if score < 0:
             score = 0
+        totalScore += score
         SaveGame()
         saving = 60
 
@@ -402,7 +416,7 @@ def WinCon():
         return False
 
 def WinUI():
-    global winContinue ,winTimer , isLevelChange , levelID , saving
+    global winContinue ,winTimer , isLevelChange , levelID , saving , levelStars
     winTime_text = pixel_font.render(f"Time: {formatted_time}",True,colours.black)
     winCoins_text = pixel_font.render(f"Coins: {collected_coins}",True,colours.black)
     winScore_text = pixel_font.render(f"Score: {score}",True,colours.black)
@@ -414,12 +428,18 @@ def WinUI():
 
     if score > starPoints[levelID][0]:    
         screen.blit(winStar,(60,150))
+        if levelStars[levelID] < 1:
+            levelStars[levelID] = 1
     else: screen.blit(empty_winStar,(60,150))
     if score > starPoints[levelID][1]:
         screen.blit(winStar,(140,150))
+        if levelStars[levelID] < 2:
+            levelStars[levelID] = 2
     else: screen.blit(empty_winStar,(140,150))
     if score > starPoints[levelID][2]:
         screen.blit(winStar,(220,150))
+        if levelStars[levelID] < 3:
+            levelStars[levelID] = 3
     else: screen.blit(empty_winStar,(220,150))
 
     screen.blit(winScore_text,(25,220))
@@ -438,6 +458,7 @@ def WinUI():
             screen.blit(continueButton_Pressed,(75,420))
             if mouse_Pressed[0]:
                 winContinue = True
+                winTimer = 1
                 exitGates[levelID][0] = currentExit_x
                 levelID += 1
 
@@ -455,17 +476,21 @@ def DeBugUI():
     player_coords_text = debug_font.render(f"player: x:{player_x}, y:{player_y}",True,colours.red)
     level_coords_text = debug_font.render(f"ground: x:{ground_x-player_x}",True,colours.red)
     levelID_text = debug_font.render(f"Level_ID: {levelID}",True,colours.red)
+    levelStars_text = debug_font.render(f"Stars: {levelStars}",True,colours.red)
 
     screen.blit(player_coords_text,(0,0))
     screen.blit(level_coords_text,(0,18))
     screen.blit(levelID_text,(0,36))
+    screen.blit(levelStars_text,(0,54))
 
 def SaveGame():
     data = {
         "score":totalScore,
         "jump":key_jump,
         "left":key_left,
-        "right":key_right
+        "right":key_right,
+        "save":renderDebug,
+        "stars":levelStars
         }
 
     with open ("user_data/settings.json", "w") as file:
@@ -753,7 +778,8 @@ while running:
 
     if winTimer != 0:
         isLevelChange = WinCon()
-        WinUI()
+        if not winContinue:
+            WinUI()
     
     if winTimer == 0:
         time+=1
