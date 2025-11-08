@@ -123,6 +123,9 @@ topBar = pygame.transform.scale(topBar,(screenWidth,15*6))
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))
 
+secondLevel = pygame.image.load("assets/levels/secondLevel.png")
+secondLevel = pygame.transform.scale(secondLevel,(5120,600))
+
 
 #-----clouds
 cloudone = pygame.image.load("assets/clouds/cloudone.png")

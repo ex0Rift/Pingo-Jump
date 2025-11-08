@@ -25,7 +25,7 @@ clouds = []                 #defining useable cloud list
 keybox = True               #determins whether or not to show the keybind turotial
 isLevelChange = True        #activates part to increment what level it is currently
 levelID = 0                 #This is what level is currently in use 
-amountOfLevels = 1          #amount of levels in game
+amountOfLevels = 2          #amount of levels in game
 collected_coins = 0         #how many coins the player has
 winTimer = 0                #defines the variable for the length of the win timer
 winContinue = False         #determins weather the next screen after winning is ready to be shown
@@ -36,6 +36,7 @@ flagTexture = ''            #define the variable for storing which state the fla
 spikeBallAnimation = 0      #defines spikeball animation loop control
 spikeBallFrame = ''         #defines which spikeball fram it is on
 spikeBallSpeed = 11         #defines the speed of which the spikeballs will move
+renderDebug = False         #determins whether or not the debug menu will be renderd
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
@@ -52,8 +53,16 @@ signText_004 = pixel_font.render("like a boss!", True, colours.black)
 signText_005 = pixel_font.render("Watch out for spike balls...",True,colours.black)
 signText_006 = pixel_font.render("They hurt quite alot!",True,colours.black)
 
-#loads all the image assets from imageLoading.py
+#loads all the  image assets from imageLoading.py
 from imageLoading import *
+
+#generate masks
+player_mask = pygame.mask.from_surface(player_sprite)
+firstLevel_mask = pygame.mask.from_surface(firstLevel)
+secondLevel_mask = pygame.mask.from_surface(secondLevel)
+sign_mask = pygame.mask.from_surface(sign)
+coin_mask = pygame.mask.from_surface(coin)
+spikeBall_mask = pygame.mask.from_surface(spikeBall)
 
 clouds.append(cloudone)
 clouds.append(cloudtwo)
@@ -76,34 +85,39 @@ coins=[
     [0,ground_x+3230,40],
     [0,ground_x+4200,115],
     [0,ground_x+4250,115],
-    [0,ground_x+4300,115]
+    [0,ground_x+4300,115],
+    [1,ground_x+1840,400],
+    [1,ground_x+2200,50],
+    [1,ground_x+2260,50]
+
 
 ]
 
 # first is the level its on , second is x coord , third is y coord ,foruth is x far left, fith is final x far right , sixth is movment direction('pos' positve 'neg' negative)
 spikeBalls = [
-    [0,ground_x+4000,508,4000,4500,'pos']
+    [0,ground_x+4000,508,4000,4500,'pos'],
+    [1,ground_x+300,508,300,850,'pos']
 ]
 
+levels = [
+    [firstLevel,firstLevel_mask],
+    [secondLevel,secondLevel_mask]
+]
 
 starPoints = [
-    [500,2000,5000]
+    [500,2000,5000],
+    [0,0,0]
 ]
 
 exitGates=[
+    [ground_x+4672,395],
     [ground_x+4672,395]
 ]
-
-#generate masks
-player_mask = pygame.mask.from_surface(player_sprite)
-ground_mask = pygame.mask.from_surface(firstLevel)
-sign_mask = pygame.mask.from_surface(sign)
-coin_mask = pygame.mask.from_surface(coin)
-spikeBall_mask = pygame.mask.from_surface(spikeBall)
 
 #
 #Different game screens here
 #
+
 def MainMenu():
     text_title = header_font.render("Pingo Jump", True, colours.white)
     margin = [265]
@@ -395,12 +409,13 @@ def WinUI():
     screen.blit(levelSelectButton,(40,500))
 
     #checking for button presses
-    if 75 < mouse_Pos[0] < 75+continueButton.get_width() and 420 < mouse_Pos[1] < 420+continueButton.get_height():
-        screen.blit(continueButton_Pressed,(75,420))
-        if mouse_Pressed[0]:
-            winContinue = True
-            exitGates[levelID][0] = currentExit_x
-            levelID += 1
+    if not winContinue:
+        if 75 < mouse_Pos[0] < 75+continueButton.get_width() and 420 < mouse_Pos[1] < 420+continueButton.get_height():
+            screen.blit(continueButton_Pressed,(75,420))
+            if mouse_Pressed[0]:
+                winContinue = True
+                exitGates[levelID][0] = currentExit_x
+                levelID += 1
 
     if 40 < mouse_Pos[0] < 40+levelSelectButton.get_width() and 500 < mouse_Pos[1] < 500+levelSelectButton.get_height():
         screen.blit(levelSelectButton_Pressed,(40,500))
@@ -409,6 +424,17 @@ def WinUI():
             isLevelChange = True
             exitGates[levelID][0] = currentExit_x
             LevelSelect()
+
+def DeBugUI():
+    debug_font = pygame.font.Font("fonts/upheavtt.ttf",25)
+
+    player_coords_text = debug_font.render(f"player: x:{player_x}, y:{player_y}",True,colours.red)
+    level_coords_text = debug_font.render(f"ground: x:{ground_x-player_x}",True,colours.red)
+    levelID_text = debug_font.render(f"Level_ID: {levelID}",True,colours.red)
+
+    screen.blit(player_coords_text,(0,0))
+    screen.blit(level_coords_text,(0,18))
+    screen.blit(levelID_text,(0,36))
 
 def CloudGen():
     cloud = random.choice(clouds)
@@ -451,12 +477,15 @@ while running:
             sys.exit(0)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                isLevelChange = True
                 LevelSelect()
+            if event.key == pygame.K_0:
+                renderDebug = not renderDebug
 
     #movement keys, these are smoother beacuse they dont rely on the small wait
-    keys = pygame.key.get_pressed()
-    if winTimer == 0:
+    keys = pygame.key.get_pressed() 
 
+    if winTimer == 0:
         #movment controller for jumping
         if keys[key_jump]:
             keybox = False
@@ -544,14 +573,12 @@ while running:
 
 
     #objects drawn on screen
+    if levelID == 0:
+        screen.blit(sign,(ground_x+850,500))
+        screen.blit(sign,(ground_x+1900,500))
+        screen.blit(sign,(ground_x+3900,500))
 
-    screen.blit(sign,(ground_x+850,500))
-
-    screen.blit(sign,(ground_x+1900,500))
-
-    screen.blit(sign,(ground_x+3900,500))
-
-    screen.blit(firstLevel,(ground_x,0))
+    screen.blit(levels[levelID][0],(ground_x,0))
     
     screen.blit(current_sprite,(player_x,player_y))
 
@@ -627,31 +654,31 @@ while running:
     #
     #Collisions handling
     #
+    if levelID == 0:
+        signOffset_first = (player_x - (ground_x+850),player_y - 500)
+        signcollision_first = sign_mask.overlap(player_mask,signOffset_first)
+        if signcollision_first:
+            screen.blit(messageBox,(50,50))
+            screen.blit(signText_001,(70,80))
+            screen.blit(signText_002,(70,120))
 
-    signOffset_first = (player_x - (ground_x+850),player_y - 500)
-    signcollision_first = sign_mask.overlap(player_mask,signOffset_first)
-    if signcollision_first:
-        screen.blit(messageBox,(50,50))
-        screen.blit(signText_001,(70,80))
-        screen.blit(signText_002,(70,120))
-
-    signOffset_second = (player_x - (ground_x+1900),player_y - 500)
-    signcollision_second = sign_mask.overlap(player_mask,signOffset_second)
-    if signcollision_second:
-        screen.blit(messageBox,(50,50))
-        screen.blit(signText_003,(70,80))
-        screen.blit(signText_004,(70,120))
-    
-    signOffset_second = (player_x - (ground_x+3900),player_y - 500)
-    signcollision_second = sign_mask.overlap(player_mask,signOffset_second)
-    if signcollision_second:
-        screen.blit(messageBox,(50,50))
-        screen.blit(signText_005,(70,80))
-        screen.blit(signText_006,(70,120))
+        signOffset_second = (player_x - (ground_x+1900),player_y - 500)
+        signcollision_second = sign_mask.overlap(player_mask,signOffset_second)
+        if signcollision_second:
+            screen.blit(messageBox,(50,50))
+            screen.blit(signText_003,(70,80))
+            screen.blit(signText_004,(70,120))
+        
+        signOffset_second = (player_x - (ground_x+3900),player_y - 500)
+        signcollision_second = sign_mask.overlap(player_mask,signOffset_second)
+        if signcollision_second:
+            screen.blit(messageBox,(50,50))
+            screen.blit(signText_005,(70,80))
+            screen.blit(signText_006,(70,120))
 
 
     offset = (player_x - ground_x, player_y - 0)
-    collision = ground_mask.overlap(player_mask, offset)
+    collision = levels[levelID][1].overlap(player_mask, offset)
     
     if collision:
         if player_y != ((collision[1] - player_mask.get_size()[1]) + 1):
@@ -692,6 +719,13 @@ while running:
     
     if winTimer == 0:
         time+=1
+
+
+    #renders the debug UI over anything while in game loop
+    if renderDebug:
+        DeBugUI()
+
+
     pygame.display.flip()
     clock.tick(60)
 
