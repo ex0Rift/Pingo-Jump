@@ -190,6 +190,9 @@ pingoDefaultUI = pygame.transform.scale(pingoDefaultUI,(128,128))
 pingoGoldUI = pygame.image.load("assets/UI/pingoGoldUI.png")
 pingoGoldUI = pygame.transform.scale(pingoGoldUI,(128,128))
 
+buyButton = pygame.image.load("assets/UI/buyButton.png")
+buyButton = pygame.transform.scale(buyButton,(86*2,32*2))
+
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))

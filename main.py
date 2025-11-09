@@ -32,6 +32,7 @@ winTimer = 0                #defines the variable for the length of the win time
 winContinue = False         #determins weather the next screen after winning is ready to be shown
 score = 0                   #final score each level determined by the amount of coins / least amoun of time
 totalScore = 0              #The total score across multiple levels
+totalCoins = 0              #The total amount of coins the player have, they can be spent
 flag_x , flag_y = 610 , 210 #coordinates of the flag, starting pos as shown
 flagTexture = ''            #define the variable for storing which state the flag is in
 spikeBallAnimation = 0      #defines spikeball animation loop control
@@ -43,9 +44,18 @@ key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
 current_pingo = 0           #the current pingo the player has selected
-current_flag = 1            #the current flag the player has selected
+current_flag = 0            #the current flag the player has selected
+displayed_flag = 0          #the flag being shown to the user in wardrobe
 buttonCooldown = 0          #defines the variable that controls how many times a button can be pressed at once
 buttonCooldownLength = 20   #defines the amount of frames the button will be disabled
+
+#This list is up here purly so it is defined before data is loaded
+flags_purchase = [
+    [0,True],
+    [20,False],
+    [50,False],
+    [80,False]
+]
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -60,6 +70,13 @@ with open("user_data/settings.json","r") as file:
         levelStars = load["stars"]
         current_pingo = load["pingo"]
         current_flag = load["flag"]
+        totalCoins = load["coins"]
+    except:
+        pass
+
+with open("user_data/purchases.json") as file:
+    try:
+        flags_purchase = json.load(file)
     except:
         pass
 
@@ -393,13 +410,16 @@ def Settings():
         clock.tick(120)
 
 def Wardrobe():
-    global current_pingo , current_flag , buttonCooldown
+    global current_pingo , current_flag , buttonCooldown , display_flag , flags_purchase , totalCoins
     runWardrobe = True
     pingoChange = False
+    displayed_flag = current_flag
     y_margin = [200,400]
     wardrobeHeader_text = subTitle_font.render("Wardrobe",True,colours.black)
     changePingo_text = pixel_font.render("Change Pingo",True,colours.white)
     changeFlag_text = pixel_font.render("Change Flag",True,colours.white)
+    coins_text = pixel_font.render(f"x{totalCoins}",True,colours.black)
+    cost_text = pixel_font.render(f"x{flags_purchase[displayed_flag][0]}",True,colours.black)
     display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
 
     while runWardrobe:
@@ -421,6 +441,8 @@ def Wardrobe():
         screen.blit(topBar,(0,0))
         screen.blit(wardrobeHeader_text,(250,18))
         screen.blit(backButton,(10,10))
+        screen.blit(coins_text,((screenWidth-coins_text.get_width())-15,25))
+        screen.blit(coin_icon,((screenWidth-coins_text.get_width())-coin_icon.get_width()-15,33))
 
         #drawing for the pingo changer
 
@@ -436,9 +458,18 @@ def Wardrobe():
         else: screen.blit(rightButton_disabled,(550,y_margin[0]))
 
         #drawing for the flag changer
-
-        screen.blit(flags[current_flag][0],(350,y_margin[1]))
         screen.blit(changeFlag_text,(270,y_margin[1]-80))
+        
+        screen.blit(flags[displayed_flag][0],(350,y_margin[1]))
+        
+        if not flags_purchase[displayed_flag][1]:
+            screen.blit(lockIcon,(370,y_margin[1]))
+            screen.blit(buyButton,(320,y_margin[1]+80))
+            screen.blit(cost_text,(410,y_margin[1]+90))
+
+        else: current_flag = displayed_flag
+
+        
 
         if current_flag != 0:
             screen.blit(leftButton,(200,y_margin[1]))
@@ -453,6 +484,18 @@ def Wardrobe():
             if mouse_Pressed[0]:
                 runWardrobe = False
                 MainMenu()
+
+        #
+        #purchasing buttons
+        #
+        if not flags_purchase[displayed_flag][1]:
+            if 320 < mouse_Pos[0] < 320+buyButton.get_width() and y_margin[1]+90 < mouse_Pos[1] < (y_margin[1]+90)+buyButton.get_height():
+                if mouse_Pressed[0]:
+                    if totalCoins >= flags_purchase[displayed_flag][0]:
+                        flags_purchase[displayed_flag][1] = True
+                        totalCoins -= flags_purchase[displayed_flag][0]
+                        coins_text = pixel_font.render(f"x{totalCoins}",True,colours.black)
+
         #
         #for player atrobute changing
         #
@@ -468,10 +511,11 @@ def Wardrobe():
                             pingoChange = True
                 #left button for flag changing
                 if y_margin[1] < mouse_Pos[1] < leftButton.get_height()+y_margin[1]:
-                    if current_flag != 0:
+                    if displayed_flag != 0:
                         screen.blit(leftButton_pressed,(200,y_margin[1]))
                         if mouse_Pressed[0]:
-                            current_flag -=1
+                            displayed_flag -=1
+                            cost_text = pixel_font.render(f"x{flags_purchase[displayed_flag][0]}",True,colours.black)
                             buttonCooldown = buttonCooldownLength
                     
             if 550 < mouse_Pos[0] < rightButton.get_width()+550:
@@ -485,10 +529,11 @@ def Wardrobe():
                             pingoChange = True
                 #right button for flag changing
                 if y_margin[1] < mouse_Pos[1] < rightButton.get_height()+y_margin[1]:
-                    if current_flag != len(flags)-1:
+                    if displayed_flag != len(flags)-1:
                         screen.blit(rightButton_pressed,(550,y_margin[1]))
                         if mouse_Pressed[0]:
-                            current_flag += 1
+                            displayed_flag += 1
+                            cost_text = pixel_font.render(f"x{flags_purchase[displayed_flag][0]}",True,colours.black)
                             buttonCooldown = buttonCooldownLength
 
         if pingoChange:
@@ -546,7 +591,7 @@ def Dead():
         clock.tick(60)
 
 def WinCon():
-    global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time , saving
+    global winTimer , flag_y , flagTexture , score , totalScore , collected_coins , time , saving , totalCoins
     
     
     if winTimer == 0:
@@ -556,6 +601,7 @@ def WinCon():
         if score < 0:
             score = 0
         totalScore += score
+        totalCoins += collected_coins
         SaveGame()
         saving = 60
 
@@ -645,26 +691,32 @@ def DeBugUI():
     level_coords_text = debug_font.render(f"ground: x:{ground_x-player_x}",True,colours.red)
     levelID_text = debug_font.render(f"Level_ID: {levelID}",True,colours.red)
     levelStars_text = debug_font.render(f"Stars: {levelStars}",True,colours.red)
+    totalCoins_text = debug_font.render(f"Total_Coins: {totalCoins}",True,colours.red)
 
     screen.blit(player_coords_text,(0,0))
     screen.blit(level_coords_text,(0,18))
     screen.blit(levelID_text,(0,36))
     screen.blit(levelStars_text,(0,54))
+    screen.blit(totalCoins_text,(0,72))
 
 def SaveGame():
     data = {
         "score":totalScore,
+        "coins":totalCoins,
         "jump":key_jump,
         "left":key_left,
         "right":key_right,
         "save":renderDebug,
         "stars":levelStars,
         "pingo":current_pingo,
-        "flag":current_flag
+        "flag":current_flag,
         }
 
     with open ("user_data/settings.json", "w") as file:
         json.dump(data, file)
+
+    with open ("user_data/purchases.json","w") as file:
+        json.dump(flags_purchase,file)
 
 def CloudGen():
     cloud = random.choice(clouds)
