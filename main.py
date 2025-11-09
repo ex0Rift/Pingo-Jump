@@ -44,6 +44,8 @@ key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
 current_pingo = 0           #the current pingo the player has selected
 current_flag = 1            #the current flag the player has selected
+buttonCooldown = 0          #defines the variable that controls how many times a button can be pressed at once
+buttonCooldownLength = 20   #defines the amount of frames the button will be disabled
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -162,6 +164,14 @@ flags = [
     [
         flag_red_one,
         flag_red_two
+    ],
+    [
+        flag_blue_one,
+        flag_blue_two
+    ],
+    [
+        flag_green_one,
+        flag_green_two
     ]
 ]
 
@@ -383,7 +393,7 @@ def Settings():
         clock.tick(120)
 
 def Wardrobe():
-    global current_pingo , current_flag
+    global current_pingo , current_flag , buttonCooldown
     runWardrobe = True
     pingoChange = False
     y_margin = [200,400]
@@ -446,40 +456,47 @@ def Wardrobe():
         #
         #for player atrobute changing
         #
-        if 200 < mouse_Pos[0] < leftButton.get_width()+200:
-            #left button for pingo changing
-            if y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
-                if current_pingo != 0:
-                    screen.blit(leftButton_pressed,(200,y_margin[0]))
-                    if mouse_Pressed[0]:
-                        current_pingo -= 1
-                        pingoChange = True
-            #left button for flag changing
-            if y_margin[1] < mouse_Pos[1] < leftButton.get_height()+y_margin[1]:
-                if current_flag != 0:
-                    screen.blit(leftButton_pressed,(200,y_margin[1]))
-                    if mouse_Pressed[0]:
-                        current_flag -=1
-                
-        if 550 < mouse_Pos[0] < rightButton.get_width()+550:
-            #right button for pingo changing
-            if y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
-                if current_pingo != len(pingos)-1:
-                    screen.blit(rightButton_pressed,(550,y_margin[0]))
-                    if mouse_Pressed[0]:
-                        current_pingo+= 1
-                        pingoChange = True
-            #right button for flag changing
-            if y_margin[1] < mouse_Pos[1] < rightButton.get_height()+y_margin[1]:
-                if current_flag != len(flags)-1:
-                    screen.blit(rightButton_pressed,(550,y_margin[1]))
-                    if mouse_Pressed[0]:
-                        current_flag += 1
+        if buttonCooldown == 0:
+            if 200 < mouse_Pos[0] < leftButton.get_width()+200:
+                #left button for pingo changing
+                if y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
+                    if current_pingo != 0:
+                        screen.blit(leftButton_pressed,(200,y_margin[0]))
+                        if mouse_Pressed[0]:
+                            current_pingo -= 1
+                            buttonCooldown = buttonCooldownLength
+                            pingoChange = True
+                #left button for flag changing
+                if y_margin[1] < mouse_Pos[1] < leftButton.get_height()+y_margin[1]:
+                    if current_flag != 0:
+                        screen.blit(leftButton_pressed,(200,y_margin[1]))
+                        if mouse_Pressed[0]:
+                            current_flag -=1
+                            buttonCooldown = buttonCooldownLength
+                    
+            if 550 < mouse_Pos[0] < rightButton.get_width()+550:
+                #right button for pingo changing
+                if y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
+                    if current_pingo != len(pingos)-1:
+                        screen.blit(rightButton_pressed,(550,y_margin[0]))
+                        if mouse_Pressed[0]:
+                            current_pingo+= 1
+                            buttonCooldown = buttonCooldownLength
+                            pingoChange = True
+                #right button for flag changing
+                if y_margin[1] < mouse_Pos[1] < rightButton.get_height()+y_margin[1]:
+                    if current_flag != len(flags)-1:
+                        screen.blit(rightButton_pressed,(550,y_margin[1]))
+                        if mouse_Pressed[0]:
+                            current_flag += 1
+                            buttonCooldown = buttonCooldownLength
 
         if pingoChange:
             display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
             pingoChange = False
         
+        if buttonCooldown > 0:
+            buttonCooldown -= 1
         pygame.display.flip()
         clock.tick(60)
 

@@ -85,6 +85,19 @@ flag_red_one = pygame.transform.scale(flag_red_one,(32*4,16*4))
 flag_red_two = pygame.image.load("assets/flags/flagTwo_red.png")
 flag_red_two = pygame.transform.scale(flag_red_two,(32*4,16*4))
 
+flag_blue_one = pygame.image.load("assets/flags/flagOne_blue.png")
+flag_blue_one = pygame.transform.scale(flag_blue_one,(32*4,16*4))
+
+flag_blue_two = pygame.image.load("assets/flags/flagTwo_blue.png")
+flag_blue_two = pygame.transform.scale(flag_blue_two,(32*4,16*4))
+
+flag_green_one = pygame.image.load("assets/flags/flagOne_green.png")
+flag_green_one = pygame.transform.scale(flag_green_one,(32*4,16*4))
+
+flag_green_two = pygame.image.load("assets/flags/flagTwo_green.png")
+flag_green_two = pygame.transform.scale(flag_green_two,(32*4,16*4))
+
+
 #-----UI
 
 keybox = pygame.image.load("assets/UI/keybox.png")
