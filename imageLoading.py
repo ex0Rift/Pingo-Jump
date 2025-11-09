@@ -226,6 +226,20 @@ restartButton_pressed = pygame.transform.scale(restartButton_pressed,(37*2,35*2)
 deathBackground = pygame.image.load("assets/UI/deathBackground.png")
 deathBackground = pygame.transform.scale(deathBackground,(256*2.8,128*2.8))
 
+#-----level select items
+
+levelSelectBackground = pygame.image.load("assets/background/levelSelectBackground.png")
+levelSelectBackground = pygame.transform.scale(levelSelectBackground,(200*4,150*4))
+
+levelButton = pygame.image.load("assets/UI/levelMenu/levelButton.png")
+levelButton = pygame.transform.scale(levelButton,(15*4,15*4))
+
+levelButton_pressed = pygame.image.load("assets/UI/levelMenu/levelButtonPressed.png")
+levelButton_pressed = pygame.transform.scale(levelButton_pressed,(15*4,15*4))
+
+levelButton_selected = pygame.image.load("assets/UI/levelMenu/levelButtonSelected.png")
+levelButton_selected = pygame.transform.scale(levelButton_selected,(15*4,15*4))
+
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))

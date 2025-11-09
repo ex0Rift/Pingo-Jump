@@ -292,11 +292,9 @@ def MainMenu():
         clock.tick(10)
 
 def LevelSelect():
-    global levelID , buttonCooldown
+    global levelID , buttonCooldown , isLevelChange
     levelRun = True
-    card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
-    score_text = card_font.render(f"Score: {totalScore}",True,colours.black)
-    buttonCooldown = buttonCooldownLength
+    selectedLevel = levelID
     while levelRun:
         mouse_Pos = pygame.mouse.get_pos()
         mouse_Pressed = pygame.mouse.get_pressed()
@@ -311,48 +309,50 @@ def LevelSelect():
                     levelRun = False
                     MainMenu()
 
-        screen.fill(colours.sky)
+        screen.blit(levelSelectBackground,(0,0))
+        
+        if selectedLevel == 0:
+            screen.blit(levelButton_selected,(112,84))
+        else:screen.blit(levelButton,(112,84))
+        
+        if selectedLevel == 1:
+            screen.blit(levelButton_selected,(304,180))
+        else:screen.blit(levelButton,(304,180))
 
-        screen.blit(topBar,(0,0))
-        screen.blit(backButton,(25,10))
-        screen.blit(score_text,(screenWidth-score_text.get_width()-20,5))
 
-        for i in range(amountOfLevels):
-            level_text = card_font.render(f"Level {i}",True,colours.black)
 
-            if i  == 1 and levelStars[0] != 3:
-                screen.blit(levelCard_disabled,(25,i*(levelCard_disabled.get_height()+25)+95))
-            else:
-                screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+95))
+        screen.blit(backButton,(10,screenHeight-backButton.get_height()-5))
+        screen.blit(start_button,(650,screenHeight-backButton.get_height()-5))
+        #button pressing logic
 
-            screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+95)+40))
+        if 112 < mouse_Pos[0] < 112+levelButton.get_width() and 84 < mouse_Pos[1] < 84+levelButton.get_height():
+            if selectedLevel != 0:screen.blit(levelButton_pressed,(112,84))
+            if mouse_Pressed[0]:
+                selectedLevel = 0
 
-            tempScore = levelStars[i]
-            for j in range(1,4):
-                if tempScore > 0:
-                    screen.blit(winStar,((j*70)+480,(i*(levelCard.get_height()+25)+95)+45))
-                else:
-                    screen.blit(empty_winStar,((j*70)+480,(i*(levelCard.get_height()+25)+95)+45))
-                tempScore -= 1
+        if 304 < mouse_Pos[0] < 304+levelButton.get_width() and 180 < mouse_Pos[1] < 180+levelButton.get_height():
+            if selectedLevel != 1:screen.blit(levelButton_pressed,(304,180))
+            if mouse_Pressed[0]:
+                selectedLevel = 1
+        
+        #operating buttons pressing logic
 
-            if buttonCooldown == 0:
-                if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+95) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+95)+levelCard.get_height():
-                    if mouse_Pressed[0]:
-                        if i == 1 and levelStars[0] == 3 or i == 0:
-                            levelID = i
-                            levelRun = False
-
-        if levelStars[0] != 3:    
-            screen.blit(lockIcon,(460,310))
-
-        if 25 < mouse_Pos[0] < 25+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
-                screen.blit(backButton_Pressed,(25,10))
+        if (screenHeight-backButton.get_height()-5) < mouse_Pos[1] < screenHeight-5:
+            if 10 < mouse_Pos[0] < 10+backButton.get_width():
+                screen.blit(backButton_Pressed,(10,screenHeight-backButton.get_height()-5))
                 if mouse_Pressed[0]:
-                    MainMenu()
                     levelRun = False
+                    MainMenu()
+            if 650 < mouse_Pos[0] <650+start_button.get_width():
+                screen.blit(start_pressed,(648,screenHeight-backButton.get_height()-8))
+                if mouse_Pressed[0]:
+                    levelRun = False
+                    isLevelChange = True
+                    levelID = selectedLevel
 
-        if buttonCooldown != 0:
-            buttonCooldown -=1
+        #mini debug for this screen
+        debug_text = pixel_font.render(f"x:{mouse_Pos[0]} y:{mouse_Pos[1]}",True,colours.red)
+        screen.blit(debug_text,(0,0))
 
         pygame.display.flip()
         clock.tick(120)
