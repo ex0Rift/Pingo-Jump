@@ -66,18 +66,24 @@ sign = pygame.transform.scale(sign,(64,64))
 coin = pygame.image.load("assets/level_objects/coin.png")
 coin = pygame.transform.scale(coin,(64,64))
 
-flagOne = pygame.image.load("assets/flags/flagOne.png")
-flagOne = pygame.transform.scale(flagOne,(32*4,16*4))
-
-flagTwo = pygame.image.load("assets/flags/flagTwo.png")
-flagTwo = pygame.transform.scale(flagTwo,(32*4,16*4))
-
 spikeBall = pygame.image.load("assets/level_objects/spikeBall.png")
 spikeBall = pygame.transform.scale(spikeBall,(64,64))
 
 spikeBall_one = pygame.image.load("assets/level_objects/spikeBall_one.png")
 spikeBall_one = pygame.transform.scale(spikeBall_one,(64,64))
 
+#-----Flags
+flag_default_one = pygame.image.load("assets/flags/flagOne.png")
+flag_default_one = pygame.transform.scale(flag_default_one,(32*4,16*4))
+
+flag_default_two = pygame.image.load("assets/flags/flagTwo.png")
+flag_default_two = pygame.transform.scale(flag_default_two,(32*4,16*4))
+
+flag_red_one = pygame.image.load("assets/flags/flagOne_red.png")
+flag_red_one = pygame.transform.scale(flag_red_one,(32*4,16*4))
+
+flag_red_two = pygame.image.load("assets/flags/flagTwo_red.png")
+flag_red_two = pygame.transform.scale(flag_red_two,(32*4,16*4))
 
 #-----UI
 
@@ -167,6 +173,9 @@ rightButton_pressed = pygame.transform.scale(rightButton_pressed,(37*2,35*2))
 
 pingoDefaultUI = pygame.image.load("assets/UI/pingoDefaultUI.png")
 pingoDefaultUI = pygame.transform.scale(pingoDefaultUI,(128,128))
+
+pingoGoldUI = pygame.image.load("assets/UI/pingoGoldUI.png")
+pingoGoldUI = pygame.transform.scale(pingoGoldUI,(128,128))
 
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")

@@ -43,6 +43,7 @@ key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
 current_pingo = 0           #the current pingo the player has selected
+current_flag = 1            #the current flag the player has selected
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -56,6 +57,7 @@ with open("user_data/settings.json","r") as file:
         renderDebug = load["save"]
         levelStars = load["stars"]
         current_pingo = load["pingo"]
+        current_flag = load["flag"]
     except:
         pass
 
@@ -148,7 +150,18 @@ pingos = [
         player_right_gold,
         player_right_walk_gold,
         player_roll_gold,
-        pingoDefaultUI
+        pingoGoldUI
+    ]
+]
+
+flags = [
+    [
+        flag_default_one,
+        flag_default_two
+    ],
+    [
+        flag_red_one,
+        flag_red_two
     ]
 ]
 
@@ -216,6 +229,7 @@ def MainMenu():
                 Settings()
 
         if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
+            pygame.draw.rect(screen,colours.sky,pygame.Rect(500,300,128,128))
             screen.blit(pingos[current_pingo][6],(500,300))
             if mouse_press[0]:
                 menu = False
@@ -369,12 +383,13 @@ def Settings():
         clock.tick(120)
 
 def Wardrobe():
-    global current_pingo
+    global current_pingo , current_flag
     runWardrobe = True
     pingoChange = False
-    y_margin = [200]
+    y_margin = [200,400]
     wardrobeHeader_text = subTitle_font.render("Wardrobe",True,colours.black)
     changePingo_text = pixel_font.render("Change Pingo",True,colours.white)
+    changeFlag_text = pixel_font.render("Change Flag",True,colours.white)
     display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
 
     while runWardrobe:
@@ -393,11 +408,13 @@ def Wardrobe():
                     MainMenu()
 
         screen.fill(colours.sky)
-
         screen.blit(topBar,(0,0))
-        screen.blit(backButton,(10,10))
         screen.blit(wardrobeHeader_text,(250,18))
+        screen.blit(backButton,(10,10))
 
+        #drawing for the pingo changer
+
+        screen.blit(display_pingo,(350,y_margin[0]-50))
         screen.blit(changePingo_text,(270,y_margin[0]-80))
 
         if current_pingo != 0:
@@ -408,29 +425,56 @@ def Wardrobe():
             screen.blit(rightButton,(550,y_margin[0]))
         else: screen.blit(rightButton_disabled,(550,y_margin[0]))
 
-        screen.blit(display_pingo,(350,y_margin[0]-50))
+        #drawing for the flag changer
 
+        screen.blit(flags[current_flag][0],(350,y_margin[1]))
+        screen.blit(changeFlag_text,(270,y_margin[1]-80))
 
+        if current_flag != 0:
+            screen.blit(leftButton,(200,y_margin[1]))
+        else: screen.blit(leftButton_disabled,(200,y_margin[1]))
+        if current_flag != len(flags)-1:  
+            screen.blit(rightButton,(550,y_margin[1]))
+        else: screen.blit(rightButton_disabled,(550,y_margin[1]))
+
+        #for the back button
         if 10 < mouse_Pos[0] < backButton.get_width()+10 and 10 < mouse_Pos[1] < backButton.get_height()+10:
             screen.blit(backButton_Pressed,(10,10))
             if mouse_Pressed[0]:
                 runWardrobe = False
                 MainMenu()
-
-        if 200 < mouse_Pos[0] < leftButton.get_width()+200 and y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
-            if current_pingo != 0:
-                screen.blit(leftButton_pressed,(200,y_margin[0]))
-                if mouse_Pressed[0]:
-                    current_pingo -= 1
-                    pingoChange = True
+        #
+        #for player atrobute changing
+        #
+        if 200 < mouse_Pos[0] < leftButton.get_width()+200:
+            #left button for pingo changing
+            if y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
+                if current_pingo != 0:
+                    screen.blit(leftButton_pressed,(200,y_margin[0]))
+                    if mouse_Pressed[0]:
+                        current_pingo -= 1
+                        pingoChange = True
+            #left button for flag changing
+            if y_margin[1] < mouse_Pos[1] < leftButton.get_height()+y_margin[1]:
+                if current_flag != 0:
+                    screen.blit(leftButton_pressed,(200,y_margin[1]))
+                    if mouse_Pressed[0]:
+                        current_flag -=1
                 
-
-        if 550 < mouse_Pos[0] < rightButton.get_width()+550 and y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
-            if current_pingo != len(pingos)-1:
-                screen.blit(rightButton_pressed,(550,y_margin[0]))
-                if mouse_Pressed[0]:
-                    current_pingo+= 1
-                    pingoChange = True
+        if 550 < mouse_Pos[0] < rightButton.get_width()+550:
+            #right button for pingo changing
+            if y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
+                if current_pingo != len(pingos)-1:
+                    screen.blit(rightButton_pressed,(550,y_margin[0]))
+                    if mouse_Pressed[0]:
+                        current_pingo+= 1
+                        pingoChange = True
+            #right button for flag changing
+            if y_margin[1] < mouse_Pos[1] < rightButton.get_height()+y_margin[1]:
+                if current_flag != len(flags)-1:
+                    screen.blit(rightButton_pressed,(550,y_margin[1]))
+                    if mouse_Pressed[0]:
+                        current_flag += 1
 
         if pingoChange:
             display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
@@ -440,6 +484,7 @@ def Wardrobe():
         clock.tick(60)
 
 def Dead():
+    global isLevelChange
     font = pygame.font.Font("fonts/buble.TTF",100)
     secondfont = pygame.font.Font(None,30)
     textSurface = font.render("You died!",True,colours.white)
@@ -458,9 +503,12 @@ def Dead():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     dead = False
+                    isLevelChange = True
                     MainMenu()
+                    
                 if event.key == pygame.K_RETURN:
                     dead = False
+                    isLevelChange = True
                     MainMenu()
         screen.fill(colours.black)
 
@@ -473,6 +521,7 @@ def Dead():
         if mouse_Pressed[0]:
             if (screenWidth//2)-80 < mouse_Pos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mouse_Pos[1] < (screenHeight//2)+150:
                 dead = False
+                isLevelChange = True
                 MainMenu()
                 
 
@@ -487,8 +536,6 @@ def WinCon():
         winTimer = 30
         #calculate score from coins and time and resets them
         score = (500*collected_coins)-time//2
-        collected_coins = 0
-        time = 0
         if score < 0:
             score = 0
         totalScore += score
@@ -497,10 +544,10 @@ def WinCon():
 
     #flag animation
     if winTimer % 10 == 0:
-        if flagTexture == flagOne:
-            flagTexture = flagTwo
+        if flagTexture == flags[current_flag][0]:
+            flagTexture = flags[current_flag][1]
         else:
-            flagTexture = flagOne
+            flagTexture = flags[current_flag][0]
     if flag_y > 95:
         flag_y -= 2
 
@@ -595,7 +642,8 @@ def SaveGame():
         "right":key_right,
         "save":renderDebug,
         "stars":levelStars,
-        "pingo":current_pingo
+        "pingo":current_pingo,
+        "flag":current_flag
         }
 
     with open ("user_data/settings.json", "w") as file:
@@ -628,6 +676,8 @@ while running:
         player_y = 400
         ground_x = 0
         score = 0
+        time = 0
+        collected_coins = 0
         currentExit_x = exitGates[levelID][0]
         coins_editable = copy.deepcopy(coins)
         spikeBalls_editable = copy.deepcopy(spikeBalls)
