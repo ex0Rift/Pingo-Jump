@@ -11,22 +11,22 @@ import pygame
 screenWidth,screenHeight = 800 , 600
 
 #loading sprites
-player_left = pygame.image.load("assets/player/facing_left.png")
+player_left = pygame.image.load("assets/player/default/facing_left.png")
 player_left = pygame.transform.scale(player_left,(64,64))
 
-player_left_walk = pygame.image.load("assets/player/facing_left_walk.png")
+player_left_walk = pygame.image.load("assets/player/default/facing_left_walk.png")
 player_left_walk = pygame.transform.scale(player_left_walk,(64,64))
 
-player_right = pygame.image.load("assets/player/facing_right.png")
+player_right = pygame.image.load("assets/player/default/facing_right.png")
 player_right = pygame.transform.scale(player_right,(64,64))
 
-player_right_walk = pygame.image.load("assets/player/facing_right_walk.png")
+player_right_walk = pygame.image.load("assets/player/defualt/facing_right_walk.png")
 player_right_walk = pygame.transform.scale(player_right_walk,(64,64))
 
-player_sprite = pygame.image.load("assets/player/sprite.png")
+player_sprite = pygame.image.load("assets/player/default/sprite.png")
 player_sprite = pygame.transform.scale(player_sprite,(64,64))
 
-player_roll = pygame.image.load('assets/player/rolling.png')
+player_roll = pygame.image.load('assets/player/default/rolling.png')
 player_roll = pygame.transform.scale(player_roll,(64,64))
 
 panorama = pygame.image.load("assets/background/panorama.png")
@@ -124,6 +124,12 @@ saveIcon = pygame.transform.scale(saveIcon,(64,64))
 
 lockIcon = pygame.image.load("assets/UI/lockIcon.png")
 lockIcon = pygame.transform.scale(lockIcon,(64,64))
+
+leftButton = pygame.image.load("assets/UI/leftButton.png")
+leftButton = pygame.transform.scale(leftButton,(37*2,35*2))
+
+rightButton = pygame.image.load("assets/UI/rightButton.png")
+rightButton = pygame.transform.scale(rightButton,(37*2,35*2))
 
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")

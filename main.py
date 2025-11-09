@@ -42,6 +42,7 @@ saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
+current_pingo = 0           #the current pingo the player has selected
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -129,13 +130,25 @@ exitGates=[
     [ground_x+4672,395]
 ]
 
+pingos = [
+    [
+        player_sprite,
+        player_left,
+        player_left_walk,
+        player_right,
+        player_right_walk,
+        player_roll
+    ]
+]
+
 #
 #Different game screens here
 #
 
 def MainMenu():
     text_title = header_font.render("Pingo Jump", True, colours.white)
-    margin = [265]
+    display_pingo = pygame.transform.scale(player_sprite,(128,128))
+    margin = [120]
     menu = True
     while menu:
         mouse_pos = pygame.mouse.get_pos()
@@ -161,33 +174,41 @@ def MainMenu():
 
         screen.blit(text_title,(80,50))
 
-        screen.blit(start_button,(390,300))
+        screen.blit(start_button,(margin[0]+125,300))
 
         screen.blit(levelSelectButton,(margin[0],380))
 
         screen.blit(setings_Button,(margin[0],300))
+
+        screen.blit(display_pingo,(500,300))
 
         random_positions=[player_sprite,player_right,player_right_walk,player_left,player_left_walk]
         for i in range(0,screenWidth,64):
             r = random.choice(random_positions)
             screen.blit(r,(i,screenHeight-64))
 
-        if 390 < mouse_pos[0] < 390+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
-            screen.blit(start_pressed,(384,298))
+        if margin[0]+125 < mouse_pos[0] < (margin[0]+125)+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
+            screen.blit(start_pressed,(margin[0]+122,298))
             if mouse_press[0]:
                 menu = False
 
         if margin[0] < mouse_pos[0] < margin[0]+levelSelectButton.get_width() and 380 < mouse_pos[1] < 380+levelSelectButton.get_height():
-            screen.blit(levelSelectButton_Pressed,(265,380))
+            screen.blit(levelSelectButton_Pressed,(margin[0],380))
             if mouse_press[0]:
                 LevelSelect()
                 menu = False
 
         if margin[0] < mouse_pos[0] < margin[0]+setings_Button.get_width() and 300 < mouse_pos[1] < 300+setings_Button.get_width():
-            screen.blit(settingsButton_Pressed,(265,300))
+            screen.blit(settingsButton_Pressed,(margin[0],300))
             if mouse_press[0]:
                 menu = False
                 Settings()
+
+        if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
+            if mouse_press[0]:
+                menu = False
+                Wardrobe()
+
 
 
 
@@ -334,6 +355,45 @@ def Settings():
 
         pygame.display.flip()
         clock.tick(120)
+
+def Wardrobe():
+    runWardrobe = True
+    wardrobeHeader_text = subTitle_font.render("Wardrobe",True,colours.black)
+    display_pingo = pygame.transform.scale(pingos[current_pingo],(128,128))
+
+    while runWardrobe:
+        mouse_Pos = pygame.mouse.get_pos()
+        mouse_Pressed = pygame.mouse.get_pressed()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                SaveGame()
+                pygame.quit()
+                sys.exit(0)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    runWardrobe = False
+                    MainMenu()
+
+        screen.fill(colours.sky)
+
+        screen.blit(topBar,(0,0))
+        screen.blit(backButton,(10,10))
+        screen.blit(wardrobeHeader_text,(250,18))
+
+        screen.blit(leftButton,(100,100))
+        screen.blit(rightButton,(200,100))
+        screen.blit(display_pingo,(200,200))
+
+
+        if 10 < mouse_Pos[0] < backButton.get_width()+10 and 10 < mouse_Pos[1] < backButton.get_height()+10:
+            screen.blit(backButton_Pressed,(10,10))
+            if mouse_Pressed[0]:
+                runWardrobe = False
+                MainMenu()
+        
+        pygame.display.flip()
+        clock.tick(60)
 
 def Dead():
     font = pygame.font.Font("fonts/buble.TTF",100)
