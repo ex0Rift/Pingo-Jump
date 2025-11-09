@@ -50,6 +50,7 @@ current_flag = 0            #the current flag the player has selected
 displayed_flag = 0          #the flag being shown to the user in wardrobe
 buttonCooldown = 0          #defines the variable that controls how many times a button can be pressed at once
 buttonCooldownLength = 20   #defines the amount of frames the button will be disabled
+fallAnimation = 0           #defines the fall animation timer
 
 #This list is up here purly so it is defined before data is loaded
 flags_purchase = [
@@ -174,6 +175,8 @@ pingos = [
         player_right,
         player_right_walk,
         player_roll,
+        player_fall,
+        player_fall_two,
         pingoDefaultUI
     ],
     [
@@ -183,6 +186,8 @@ pingos = [
         player_right_gold,
         player_right_walk_gold,
         player_roll_gold,
+        player_fall_gold,
+        player_fall_two_gold,
         pingoGoldUI
     ]
 ]
@@ -249,7 +254,7 @@ def MainMenu():
 
         screen.blit(display_pingo,(500,300))
 
-        random_positions=[player_sprite,player_right,player_right_walk,player_left,player_left_walk]
+        random_positions=[player_sprite,player_right,player_right_walk,player_left,player_left_walk,player_fall,player_sprite_gold]
         for i in range(0,screenWidth,64):
             r = random.choice(random_positions)
             screen.blit(r,(i,screenHeight-64))
@@ -274,7 +279,7 @@ def MainMenu():
 
             if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
                 pygame.draw.rect(screen,colours.sky,pygame.Rect(500,300,128,128))
-                screen.blit(pingos[current_pingo][6],(500,300))
+                screen.blit(pingos[current_pingo][8],(500,300))
                 if mouse_press[0]:
                     menu = False
                     Wardrobe()
@@ -314,7 +319,12 @@ def LevelSelect():
 
         for i in range(amountOfLevels):
             level_text = card_font.render(f"Level {i}",True,colours.black)
-            screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+95))
+
+            if i  == 1 and levelStars[0] != 3:
+                screen.blit(levelCard_disabled,(25,i*(levelCard_disabled.get_height()+25)+95))
+            else:
+                screen.blit(levelCard,(25,i*(levelCard.get_height()+25)+95))
+
             screen.blit(level_text,(60,(i*(levelCard.get_height()+25)+95)+40))
 
             tempScore = levelStars[i]
@@ -434,6 +444,7 @@ def Wardrobe():
     runWardrobe = True
     pingoChange = False
     displayed_flag = current_flag
+    buttonCooldown = buttonCooldownLength
     y_margin = [200,400]
     wardrobeHeader_text = subTitle_font.render("Wardrobe",True,colours.black)
     changePingo_text = pixel_font.render("Change Pingo",True,colours.white)
@@ -1075,6 +1086,17 @@ while running:
     
     if winTimer == 0:
         time+=1
+
+    if not onGround and jump == 0:
+        if fallAnimation ==0:
+            fallAnimation = 10
+        if fallAnimation > 5:
+            current_sprite = pingos[current_pingo][6]
+        if fallAnimation < 5:
+            current_sprite = pingos[current_pingo][7]
+        fallAnimation -= 1
+    else:
+        fallAnimation = 0
 
     platformCollided = False
     #renders the debug UI over anything while in game loop

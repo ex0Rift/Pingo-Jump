@@ -31,6 +31,18 @@ player_sprite = pygame.transform.scale(player_sprite,(64,64))
 player_roll = pygame.image.load('assets/player/default/rolling.png')
 player_roll = pygame.transform.scale(player_roll,(64,64))
 
+player_fall = pygame.image.load("assets/player/default/falling.png")
+player_fall = pygame.transform.scale(player_fall,(64,64))
+
+player_fall_two = pygame.image.load("assets/player/default/falling_two.png")
+player_fall_two = pygame.transform.scale(player_fall_two,(64,64))
+
+player_fall_gold = pygame.image.load("assets/player/gold/falling.png")
+player_fall_gold = pygame.transform.scale(player_fall_gold,(64,64))
+
+player_fall_two_gold = pygame.image.load("assets/player/gold/falling_two.png")
+player_fall_two_gold = pygame.transform.scale(player_fall_two_gold,(64,64))
+
 player_sprite_gold = pygame.image.load("assets/player/gold/spriteGold.png")
 player_sprite_gold = pygame.transform.scale(player_sprite_gold,(64,64))
 
@@ -138,6 +150,9 @@ continueButton_Pressed = pygame.transform.scale(continueButton_Pressed,(96*2,32*
 
 levelCard = pygame.image.load("assets/UI/levelCard.png")
 levelCard = pygame.transform.scale(levelCard,(screenWidth-50,25*6))
+
+levelCard_disabled = pygame.image.load("assets/UI/levelCard_disabled.png")
+levelCard_disabled = pygame.transform.scale(levelCard_disabled,(screenWidth-50,25*6))
 
 levelSelectButton = pygame.image.load("assets/UI/levelSelectButton.png")
 levelSelectButton = pygame.transform.scale(levelSelectButton,(133*2,32*2.2))
