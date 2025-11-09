@@ -196,6 +196,21 @@ pingoGoldUI = pygame.transform.scale(pingoGoldUI,(128,128))
 buyButton = pygame.image.load("assets/UI/buyButton.png")
 buyButton = pygame.transform.scale(buyButton,(86*2,32*2))
 
+mainMenuButton = pygame.image.load("assets/UI/mainMenuButton.png")
+mainMenuButton = pygame.transform.scale(mainMenuButton,(133*2,32*2.2))
+
+mainMenuButton_pressed = pygame.image.load("assets/UI/mainMenuButton_pressed.png")
+mainMenuButton_pressed = pygame.transform.scale(mainMenuButton_pressed,(133*2,32*2.2))
+
+restartButton = pygame.image.load("assets/UI/restartButton.png")
+restartButton = pygame.transform.scale(restartButton,(37*2,35*2))
+
+restartButton_pressed = pygame.image.load("assets/UI/restartButton_pressed.png")
+restartButton_pressed = pygame.transform.scale(restartButton_pressed,(37*2,35*2))
+
+deathBackground = pygame.image.load("assets/UI/deathBackground.png")
+deathBackground = pygame.transform.scale(deathBackground,(256*2.8,128*2.8))
+
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))

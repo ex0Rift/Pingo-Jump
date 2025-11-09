@@ -211,9 +211,11 @@ flags = [
 #
 
 def MainMenu():
+    global buttonCooldown
     text_title = header_font.render("Pingo Jump", True, colours.white)
     display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
     margin = [120]
+    buttonCooldown = buttonCooldownLength-15
     menu = True
     while menu:
         mouse_pos = pygame.mouse.get_pos()
@@ -252,41 +254,44 @@ def MainMenu():
             r = random.choice(random_positions)
             screen.blit(r,(i,screenHeight-64))
 
-        if margin[0]+125 < mouse_pos[0] < (margin[0]+125)+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
-            screen.blit(start_pressed,(margin[0]+122,298))
-            if mouse_press[0]:
-                menu = False
+        if buttonCooldown == 0:
+            if margin[0]+125 < mouse_pos[0] < (margin[0]+125)+start_button.get_width() and 300 < mouse_pos[1] < 300+start_button.get_height():
+                screen.blit(start_pressed,(margin[0]+122,298))
+                if mouse_press[0]:
+                    menu = False
 
-        if margin[0] < mouse_pos[0] < margin[0]+levelSelectButton.get_width() and 380 < mouse_pos[1] < 380+levelSelectButton.get_height():
-            screen.blit(levelSelectButton_Pressed,(margin[0],380))
-            if mouse_press[0]:
-                LevelSelect()
-                menu = False
+            if margin[0] < mouse_pos[0] < margin[0]+levelSelectButton.get_width() and 380 < mouse_pos[1] < 380+levelSelectButton.get_height():
+                screen.blit(levelSelectButton_Pressed,(margin[0],380))
+                if mouse_press[0]:
+                    LevelSelect()
+                    menu = False
 
-        if margin[0] < mouse_pos[0] < margin[0]+setings_Button.get_width() and 300 < mouse_pos[1] < 300+setings_Button.get_width():
-            screen.blit(settingsButton_Pressed,(margin[0],300))
-            if mouse_press[0]:
-                menu = False
-                Settings()
+            if margin[0] < mouse_pos[0] < margin[0]+setings_Button.get_width() and 300 < mouse_pos[1] < 300+setings_Button.get_width():
+                screen.blit(settingsButton_Pressed,(margin[0],300))
+                if mouse_press[0]:
+                    menu = False
+                    Settings()
 
-        if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
-            pygame.draw.rect(screen,colours.sky,pygame.Rect(500,300,128,128))
-            screen.blit(pingos[current_pingo][6],(500,300))
-            if mouse_press[0]:
-                menu = False
-                Wardrobe()
+            if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
+                pygame.draw.rect(screen,colours.sky,pygame.Rect(500,300,128,128))
+                screen.blit(pingos[current_pingo][6],(500,300))
+                if mouse_press[0]:
+                    menu = False
+                    Wardrobe()
 
 
-
+        if buttonCooldown != 0:
+            buttonCooldown -= 1
 
         pygame.display.flip()
         clock.tick(10)
 
 def LevelSelect():
-    global levelID
+    global levelID , buttonCooldown
     levelRun = True
     card_font = pygame.font.Font("fonts/upheavtt.ttf",80)
     score_text = card_font.render(f"Score: {totalScore}",True,colours.black)
+    buttonCooldown = buttonCooldownLength
     while levelRun:
         mouse_Pos = pygame.mouse.get_pos()
         mouse_Pressed = pygame.mouse.get_pressed()
@@ -304,7 +309,6 @@ def LevelSelect():
         screen.fill(colours.sky)
 
         screen.blit(topBar,(0,0))
-
         screen.blit(backButton,(25,10))
         screen.blit(score_text,(screenWidth-score_text.get_width()-20,5))
 
@@ -321,11 +325,12 @@ def LevelSelect():
                     screen.blit(empty_winStar,((j*70)+480,(i*(levelCard.get_height()+25)+95)+45))
                 tempScore -= 1
 
-            if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+95) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+95)+levelCard.get_height():
-                if mouse_Pressed[0]:
-                    if i == 1 and levelStars[0] == 3 or i == 0:
-                        levelID = i
-                        levelRun = False
+            if buttonCooldown == 0:
+                if 25 < mouse_Pos[0] < 25+levelCard.get_width() and (i*(levelCard.get_height()+25)+95) < mouse_Pos[1] < (i*(levelCard.get_height()+25)+95)+levelCard.get_height():
+                    if mouse_Pressed[0]:
+                        if i == 1 and levelStars[0] == 3 or i == 0:
+                            levelID = i
+                            levelRun = False
 
         if levelStars[0] != 3:    
             screen.blit(lockIcon,(460,310))
@@ -336,7 +341,8 @@ def LevelSelect():
                     MainMenu()
                     levelRun = False
 
-
+        if buttonCooldown != 0:
+            buttonCooldown -=1
 
         pygame.display.flip()
         clock.tick(120)
@@ -563,9 +569,9 @@ def Dead():
     global isLevelChange
     font = pygame.font.Font("fonts/buble.TTF",100)
     secondfont = pygame.font.Font(None,30)
-    textSurface = font.render("You died!",True,colours.white)
-    quitText = secondfont.render("Quit",True,colours.black)
+    textSurface = font.render("You died!",True,colours.black)
     dead = True
+    y_margin = [400]
     while dead:
         mouse_Pos = pygame.mouse.get_pos()
         mouse_Pressed = pygame.mouse.get_pressed()
@@ -586,21 +592,32 @@ def Dead():
                     dead = False
                     isLevelChange = True
                     MainMenu()
-        screen.fill(colours.black)
 
+        screen.blit(deathBackground,(38,150))
         screen.blit(textSurface,((screenWidth//2)-textSurface.get_width()//2,(screenHeight//2)-textSurface.get_height()))
+        screen.blit(mainMenuButton,(70,y_margin[0]))
+        screen.blit(levelSelectButton,(460,y_margin[0]))
+        screen.blit(restartButton,(359,y_margin[0]-1))
 
-        pygame.draw.rect(screen,colours.red,pygame.Rect((screenWidth//2)-80,(screenHeight//2)+100,100,50))
-
-        screen.blit(quitText,((screenWidth//2)-50,(screenHeight//2)+115))
-
-        if mouse_Pressed[0]:
-            if (screenWidth//2)-80 < mouse_Pos[0] < (screenWidth//2)+20 and (screenHeight//2)+100 < mouse_Pos[1] < (screenHeight//2)+150:
-                dead = False
-                isLevelChange = True
-                MainMenu()
-                
-
+        if y_margin[0] < mouse_Pos[1] < y_margin[0]+mainMenuButton.get_height():
+            if 70 < mouse_Pos[0] < 70+mainMenuButton.get_width():
+                screen.blit(mainMenuButton_pressed,(70,y_margin[0]))
+                if mouse_Pressed[0]:
+                    dead = False
+                    isLevelChange = True
+                    MainMenu()
+            if 460 < mouse_Pos[0] < 460+levelSelectButton.get_width():
+                screen.blit(levelSelectButton_Pressed,(460,y_margin[0]))
+                if mouse_Pressed[0]:
+                    dead = False
+                    isLevelChange =True
+                    LevelSelect()
+            if 359 < mouse_Pos[0] < 359+restartButton.get_width():
+                screen.blit(restartButton_pressed,(359,y_margin[0]-1))
+                if mouse_Pressed[0]:
+                    dead = False
+                    isLevelChange = True
+        
         pygame.display.flip()
         clock.tick(60)
 
