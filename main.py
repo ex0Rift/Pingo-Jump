@@ -42,7 +42,7 @@ saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
-current_pingo = 0           #the current pingo the player has selected
+current_pingo = 1           #the current pingo the player has selected
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -138,6 +138,14 @@ pingos = [
         player_right,
         player_right_walk,
         player_roll
+    ],
+    [
+        player_sprite_gold,
+        player_left_gold,
+        player_left_walk_gold,
+        player_right_gold,
+        player_right_walk_gold,
+        player_roll_gold
     ]
 ]
 
@@ -147,7 +155,7 @@ pingos = [
 
 def MainMenu():
     text_title = header_font.render("Pingo Jump", True, colours.white)
-    display_pingo = pygame.transform.scale(player_sprite,(128,128))
+    display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
     margin = [120]
     menu = True
     while menu:
@@ -357,9 +365,13 @@ def Settings():
         clock.tick(120)
 
 def Wardrobe():
+    global current_pingo
     runWardrobe = True
+    pingoChange = False
+    y_margin = [200]
     wardrobeHeader_text = subTitle_font.render("Wardrobe",True,colours.black)
-    display_pingo = pygame.transform.scale(pingos[current_pingo],(128,128))
+    changePingo_text = pixel_font.render("Change Pingo",True,colours.white)
+    display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
 
     while runWardrobe:
         mouse_Pos = pygame.mouse.get_pos()
@@ -381,9 +393,10 @@ def Wardrobe():
         screen.blit(backButton,(10,10))
         screen.blit(wardrobeHeader_text,(250,18))
 
-        screen.blit(leftButton,(100,100))
-        screen.blit(rightButton,(200,100))
-        screen.blit(display_pingo,(200,200))
+        screen.blit(changePingo_text,(270,y_margin[0]-80))
+        screen.blit(leftButton,(200,y_margin[0]))
+        screen.blit(rightButton,(550,y_margin[0]))
+        screen.blit(display_pingo,(350,y_margin[0]-50))
 
 
         if 10 < mouse_Pos[0] < backButton.get_width()+10 and 10 < mouse_Pos[1] < backButton.get_height()+10:
@@ -391,6 +404,23 @@ def Wardrobe():
             if mouse_Pressed[0]:
                 runWardrobe = False
                 MainMenu()
+
+        if 200 < mouse_Pos[0] < leftButton.get_width()+200 and y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
+            if mouse_Pressed[0]:
+                if current_pingo != 0:
+                    current_pingo -= 1
+                    pingoChange = True
+                
+
+        if 550 < mouse_Pos[0] < rightButton.get_width()+550 and y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
+            if mouse_Pressed[0]:
+                if current_pingo != len(pingos)-1:
+                    current_pingo+= 1
+                    pingoChange = True
+
+        if pingoChange:
+            display_pingo = pygame.transform.scale(pingos[current_pingo][0],(128,128))
+            pingoChange = False
         
         pygame.display.flip()
         clock.tick(60)
@@ -612,21 +642,21 @@ while running:
         #movment controller for jumping
         if keys[key_jump]:
             keybox = False
-            if current_sprite != player_roll:
-                current_sprite = player_roll
+            if current_sprite != pingos[current_pingo][5]:
+                current_sprite = pingos[current_pingo][5]
             if onGround:
                 jump = 25
 
         #movment controller for moving left
         if keys[key_left]:
             keybox = False
-            if current_sprite != player_roll:
+            if current_sprite != pingos[current_pingo][5]:
                 if movingleft == 0:
                     movingleft = 20
                 if movingleft > 10:
-                    current_sprite = player_left_walk
+                    current_sprite = pingos[current_pingo][2]
                 if 0 < movingleft <= 10:
-                    current_sprite = player_left
+                    current_sprite = pingos[current_pingo][1]
                 movingleft -=1
             if player_x == 200:
                 if ground_x <= -10:
@@ -648,13 +678,13 @@ while running:
         #movemnet controller for moving right
         if keys[key_right]:
             keybox = False
-            if current_sprite != player_roll:
+            if current_sprite != pingos[current_pingo][5]:
                 if movingright == 0:
                     movingright = 20
                 if movingright > 10:
-                    current_sprite = player_right_walk
+                    current_sprite = pingos[current_pingo][4]
                 if 0 < movingright <= 10:
-                    current_sprite = player_right
+                    current_sprite = pingos[current_pingo][3]
                 movingright-=1
         
             if ground_x > -currentExit_x+360:
@@ -805,9 +835,9 @@ while running:
     
     if collision:
         if player_y != ((collision[1] - player_mask.get_size()[1]) + 1):
-            current_sprite = player_roll
+            current_sprite = pingos[current_pingo][5]
         else:
-            current_sprite = player_sprite
+            current_sprite = pingos[current_pingo][0]
 
         player_y = (collision[1] - player_mask.get_size()[1]) + 1
         onGround = True

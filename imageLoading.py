@@ -11,6 +11,8 @@ import pygame
 screenWidth,screenHeight = 800 , 600
 
 #loading sprites
+
+#------ PLAYER
 player_left = pygame.image.load("assets/player/default/facing_left.png")
 player_left = pygame.transform.scale(player_left,(64,64))
 
@@ -20,7 +22,7 @@ player_left_walk = pygame.transform.scale(player_left_walk,(64,64))
 player_right = pygame.image.load("assets/player/default/facing_right.png")
 player_right = pygame.transform.scale(player_right,(64,64))
 
-player_right_walk = pygame.image.load("assets/player/defualt/facing_right_walk.png")
+player_right_walk = pygame.image.load("assets/player/default/facing_right_walk.png")
 player_right_walk = pygame.transform.scale(player_right_walk,(64,64))
 
 player_sprite = pygame.image.load("assets/player/default/sprite.png")
@@ -28,6 +30,26 @@ player_sprite = pygame.transform.scale(player_sprite,(64,64))
 
 player_roll = pygame.image.load('assets/player/default/rolling.png')
 player_roll = pygame.transform.scale(player_roll,(64,64))
+
+player_sprite_gold = pygame.image.load("assets/player/gold/spriteGold.png")
+player_sprite_gold = pygame.transform.scale(player_sprite_gold,(64,64))
+
+player_left_gold = pygame.image.load("assets/player/gold/leftspriteGold.png")
+player_left_gold = pygame.transform.scale(player_left_gold,(64,64))
+
+player_left_walk_gold = pygame.image.load("assets/player/gold/facing_left_walkGold.png")
+player_left_walk_gold = pygame.transform.scale(player_left_walk_gold,(64,64))
+
+player_right_gold = pygame.image.load("assets/player/gold/rightspriteGold.png")
+player_right_gold = pygame.transform.scale(player_right_gold,(64,64))
+
+player_right_walk_gold = pygame.image.load("assets/player/gold/facing_right_walkGold.png")
+player_right_walk_gold = pygame.transform.scale(player_right_walk_gold,(64,64))
+
+player_roll_gold = pygame.image.load("assets/player/gold/ballSpriteGold.png")
+player_roll_gold = pygame.transform.scale(player_roll_gold,(64,64))
+
+
 
 panorama = pygame.image.load("assets/background/panorama.png")
 panorama = pygame.transform.scale(panorama,(256*5,64*5))
