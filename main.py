@@ -42,7 +42,7 @@ saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
-current_pingo = 1           #the current pingo the player has selected
+current_pingo = 0           #the current pingo the player has selected
 
 #load saved data
 with open("user_data/settings.json","r") as file:
@@ -55,6 +55,7 @@ with open("user_data/settings.json","r") as file:
         key_right =load["right"]
         renderDebug = load["save"]
         levelStars = load["stars"]
+        current_pingo = load["pingo"]
     except:
         pass
 
@@ -137,7 +138,8 @@ pingos = [
         player_left_walk,
         player_right,
         player_right_walk,
-        player_roll
+        player_roll,
+        pingoDefaultUI
     ],
     [
         player_sprite_gold,
@@ -145,7 +147,8 @@ pingos = [
         player_left_walk_gold,
         player_right_gold,
         player_right_walk_gold,
-        player_roll_gold
+        player_roll_gold,
+        pingoDefaultUI
     ]
 ]
 
@@ -213,6 +216,7 @@ def MainMenu():
                 Settings()
 
         if 500 < mouse_pos[0] < display_pingo.get_width()+500 and 300 < mouse_pos[1] < display_pingo.get_height()+300:
+            screen.blit(pingos[current_pingo][6],(500,300))
             if mouse_press[0]:
                 menu = False
                 Wardrobe()
@@ -384,6 +388,7 @@ def Wardrobe():
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    SaveGame()
                     runWardrobe = False
                     MainMenu()
 
@@ -394,8 +399,15 @@ def Wardrobe():
         screen.blit(wardrobeHeader_text,(250,18))
 
         screen.blit(changePingo_text,(270,y_margin[0]-80))
-        screen.blit(leftButton,(200,y_margin[0]))
-        screen.blit(rightButton,(550,y_margin[0]))
+
+        if current_pingo != 0:
+            screen.blit(leftButton,(200,y_margin[0]))
+        else: screen.blit(leftButton_disabled,(200,y_margin[0]))
+
+        if current_pingo != len(pingos)-1:
+            screen.blit(rightButton,(550,y_margin[0]))
+        else: screen.blit(rightButton_disabled,(550,y_margin[0]))
+
         screen.blit(display_pingo,(350,y_margin[0]-50))
 
 
@@ -406,15 +418,17 @@ def Wardrobe():
                 MainMenu()
 
         if 200 < mouse_Pos[0] < leftButton.get_width()+200 and y_margin[0] < mouse_Pos[1] < leftButton.get_height()+y_margin[0]:
-            if mouse_Pressed[0]:
-                if current_pingo != 0:
+            if current_pingo != 0:
+                screen.blit(leftButton_pressed,(200,y_margin[0]))
+                if mouse_Pressed[0]:
                     current_pingo -= 1
                     pingoChange = True
                 
 
         if 550 < mouse_Pos[0] < rightButton.get_width()+550 and y_margin[0] < mouse_Pos[1] < rightButton.get_height()+y_margin[0]:
-            if mouse_Pressed[0]:
-                if current_pingo != len(pingos)-1:
+            if current_pingo != len(pingos)-1:
+                screen.blit(rightButton_pressed,(550,y_margin[0]))
+                if mouse_Pressed[0]:
                     current_pingo+= 1
                     pingoChange = True
 
@@ -580,7 +594,8 @@ def SaveGame():
         "left":key_left,
         "right":key_right,
         "save":renderDebug,
-        "stars":levelStars
+        "stars":levelStars,
+        "pingo":current_pingo
         }
 
     with open ("user_data/settings.json", "w") as file:

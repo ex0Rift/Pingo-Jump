@@ -150,8 +150,23 @@ lockIcon = pygame.transform.scale(lockIcon,(64,64))
 leftButton = pygame.image.load("assets/UI/leftButton.png")
 leftButton = pygame.transform.scale(leftButton,(37*2,35*2))
 
+leftButton_pressed = pygame.image.load("assets/UI/leftButtonPressed.png")
+leftButton_pressed = pygame.transform.scale(leftButton_pressed,(37*2,35*2))
+
+leftButton_disabled = pygame.image.load("assets/UI/leftButtonDisabled.png")
+leftButton_disabled = pygame.transform.scale(leftButton_disabled,(37*2,35*2))
+
+rightButton_disabled = pygame.image.load("assets/UI/rightButtonDisabled.png")
+rightButton_disabled = pygame.transform.scale(rightButton_disabled,(37*2,35*2))
+
 rightButton = pygame.image.load("assets/UI/rightButton.png")
 rightButton = pygame.transform.scale(rightButton,(37*2,35*2))
+
+rightButton_pressed = pygame.image.load("assets/UI/rightButtonPressed.png")
+rightButton_pressed = pygame.transform.scale(rightButton_pressed,(37*2,35*2))
+
+pingoDefaultUI = pygame.image.load("assets/UI/pingoDefaultUI.png")
+pingoDefaultUI = pygame.transform.scale(pingoDefaultUI,(128,128))
 
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
