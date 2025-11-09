@@ -38,6 +38,8 @@ flagTexture = ''            #define the variable for storing which state the fla
 spikeBallAnimation = 0      #defines spikeball animation loop control
 spikeBallFrame = ''         #defines which spikeball fram it is on
 spikeBallSpeed = 11         #defines the speed of which the spikeballs will move
+platformSpeed = 4           #defines the speed of the moving platforms
+platformCollided = False    #stops other collsion if already on paltform
 renderDebug = False         #determins whether or not the debug menu will be renderd
 saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
@@ -101,6 +103,7 @@ secondLevel_mask = pygame.mask.from_surface(secondLevel)
 sign_mask = pygame.mask.from_surface(sign)
 coin_mask = pygame.mask.from_surface(coin)
 spikeBall_mask = pygame.mask.from_surface(spikeBall)
+platform_mask = pygame.mask.from_surface(platform)
 
 clouds.append(cloudone)
 clouds.append(cloudtwo)
@@ -126,15 +129,26 @@ coins=[
     [0,ground_x+4300,115],
     [1,ground_x+1840,400],
     [1,ground_x+2200,50],
-    [1,ground_x+2260,50]
-
-
+    [1,ground_x+2260,50],
+    [1,ground_x+3500,240],
+    [1,ground_x+3550,240],
+    [1,ground_x+3600,240],
+    [1,ground_x+3650,240],
+    [1,ground_x+2580,300],
+    [1,ground_x+2580,350],
+    [1,ground_x+2580,400]
 ]
-
+#
 # first is the level its on , second is x coord , third is y coord ,foruth is x far left, fith is final x far right , sixth is movment direction('pos' positve 'neg' negative)
+#
 spikeBalls = [
     [0,ground_x+4000,508,4000,4500,'pos'],
     [1,ground_x+300,508,300,850,'pos']
+]
+
+platforms = [
+    [1, ground_x+2800,300,2800,3300,'pos'],
+    [1,ground_x+4000,400,3600,4000,'neg']
 ]
 
 levels = [
@@ -471,10 +485,10 @@ def Wardrobe():
 
         
 
-        if current_flag != 0:
+        if displayed_flag != 0:
             screen.blit(leftButton,(200,y_margin[1]))
         else: screen.blit(leftButton_disabled,(200,y_margin[1]))
-        if current_flag != len(flags)-1:  
+        if displayed_flag != len(flags)-1:  
             screen.blit(rightButton,(550,y_margin[1]))
         else: screen.blit(rightButton_disabled,(550,y_margin[1]))
 
@@ -749,6 +763,7 @@ while running:
         collected_coins = 0
         currentExit_x = exitGates[levelID][0]
         coins_editable = copy.deepcopy(coins)
+        platforms_editable = copy.deepcopy(platforms)
         spikeBalls_editable = copy.deepcopy(spikeBalls)
         winContinue = False
         isLevelChange = False
@@ -805,6 +820,10 @@ while running:
                         if i[0] == levelID:
                             i[1] += 10
 
+                    for i in platforms_editable:
+                        if i[0] == levelID:
+                            i[1] += 10
+
                     exitGates[levelID][0] +=10
             else:
                 player_x -=10
@@ -829,6 +848,10 @@ while running:
                             i[1] -= 10
 
                 for i in spikeBalls_editable:
+                    if i[0] == levelID:
+                        i[1] -= 10
+
+                for i in platforms_editable:
                     if i[0] == levelID:
                         i[1] -= 10
 
@@ -882,6 +905,33 @@ while running:
                 collected_coins+=1
                 del coins_editable[j]
 
+    #
+    #moving platform code
+    #
+    for i in platforms_editable:
+        if i[0] == levelID:
+
+            #platform movement
+            if i[5] == 'pos':
+                if ground_x+i[4] >= i[1]:
+                    i[1] += platformSpeed
+                else:i[5] = 'neg'
+            if i[5] == 'neg':
+                if ground_x+i[3] <= i[1]:
+                    i[1] -= platformSpeed
+                else:i[5] = 'pos'
+            
+            screen.blit(platform,(i[1],i[2]))
+
+        platformOffset = (player_x-i[1],player_y-i[2])
+        platformCollision = platform_mask.overlap(player_mask,platformOffset)
+        if platformCollision:
+            if player_y+current_sprite.get_height() != i[2]:
+                player_y = i[2]-current_sprite.get_height()
+                current_sprite = pingos[current_pingo][0]
+                onGround = True
+                platformCollided = True
+                fall_speed = 1.8
     #
     #Enemy Code here
     #
@@ -977,7 +1027,8 @@ while running:
         onGround = True
         fall_speed = 1.8
     else:
-        onGround = False
+        if not platformCollided:
+            onGround = False
         
     #
     #Player gravity and jumping handler
@@ -1008,7 +1059,7 @@ while running:
     if winTimer == 0:
         time+=1
 
-
+    platformCollided = False
     #renders the debug UI over anything while in game loop
     if renderDebug:
         DeBugUI()
