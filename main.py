@@ -144,12 +144,17 @@ coins=[
     [1,ground_x+2580,350],
     [1,ground_x+2580,400]
 ]
+
+powerUps = [
+    [0,ground_x+200,300]
+]
+
 #
 # first is the level its on , second is x coord , third is y coord ,foruth is x far left, fith is final x far right , sixth is movment direction('pos' positve 'neg' negative)
 #
 spikeBalls = [
     [0,ground_x+4000,508,4000,4500,'pos'],
-    [1,ground_x+300,508,300,850,'pos']
+    [1,ground_x+300,490,300,850,'pos']
 ]
 
 platforms = [
@@ -171,6 +176,12 @@ exitGates=[
     [ground_x+4672,395],
     [ground_x+4672,395]
 ]
+
+panoramas = [
+    panorama,
+    panorama_two
+]
+
 
 pingos = [
     [
@@ -919,7 +930,7 @@ while running:
 
     #Makes the background
     screen.blit(background,(0,0))
-    screen.blit(panorama,(ground_x//12,280))
+    screen.blit(panoramas[levelID],(ground_x//12,280))
 
     #
     #This will only show at the start

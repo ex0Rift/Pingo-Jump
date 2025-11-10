@@ -66,6 +66,9 @@ player_roll_gold = pygame.transform.scale(player_roll_gold,(64,64))
 panorama = pygame.image.load("assets/background/panorama.png")
 panorama = pygame.transform.scale(panorama,(256*5,64*5))
 
+panorama_two = pygame.image.load("assets/background/panorama_two.png")
+panorama_two = pygame.transform.scale(panorama_two,(256*5,64*5))
+
 background = pygame.image.load("assets/background/background.png").convert()
 background = pygame.transform.scale(background,(screenWidth,screenHeight))
 
