@@ -51,6 +51,9 @@ displayed_flag = 0          #the flag being shown to the user in wardrobe
 buttonCooldown = 0          #defines the variable that controls how many times a button can be pressed at once
 buttonCooldownLength = 20   #defines the amount of frames the button will be disabled
 fallAnimation = 0           #defines the fall animation timer
+onGroundTimer = 0           #defines extra time ong ground is in place for improved edge jumping #not implemented
+velocity = 10               #walking speed
+keyPressed = False          #weather or not movment key was pressed
 
 #This list is up here purly so it is defined before data is loaded
 flags_purchase = [
@@ -858,25 +861,27 @@ while running:
                     current_sprite = pingos[current_pingo][1]
                 movingleft -=1
             if player_x == 200:
-                if ground_x <= -10:
-                    ground_x+=10
+                if ground_x <= -velocity:
+                    ground_x+=velocity
 
                     
                     for i in coins_editable:
                         if i[0] == levelID:
-                            i[1] += 10
+                            i[1] += velocity
 
                     for i in spikeBalls_editable:
                         if i[0] == levelID:
-                            i[1] += 10
+                            i[1] += velocity
 
                     for i in platforms_editable:
                         if i[0] == levelID:
-                            i[1] += 10
+                            i[1] += velocity
 
-                    exitGates[levelID][0] +=10
+                    exitGates[levelID][0] +=velocity
             else:
-                player_x -=10
+                player_x -=velocity
+            
+            keyPressed = True
 
         #movemnet controller for moving right
         if keys[key_right]:
@@ -891,24 +896,24 @@ while running:
                 movingright-=1
         
             if ground_x > -currentExit_x+360:
-                ground_x-=10
+                ground_x-=velocity
 
                 for i in coins_editable:
                         if i[0] == levelID:
-                            i[1] -= 10
+                            i[1] -= velocity
 
                 for i in spikeBalls_editable:
                     if i[0] == levelID:
-                        i[1] -= 10
+                        i[1] -= velocity
 
                 for i in platforms_editable:
                     if i[0] == levelID:
-                        i[1] -= 10
+                        i[1] -= velocity
 
-                exitGates[levelID][0] -=10
+                exitGates[levelID][0] -=velocity
             else:
                 if player_x <= 370:
-                    player_x+=10
+                    player_x+=velocity
                 else:
                     WinCon()
 
@@ -1079,7 +1084,6 @@ while running:
     else:
         if not platformCollided:
             onGround = False
-        
     #
     #Player gravity and jumping handler
     #
