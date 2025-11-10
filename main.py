@@ -45,6 +45,7 @@ saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
+key_dash = pygame.K_RSHIFT  #keybind for dashing
 current_pingo = 0           #the current pingo the player has selected
 current_flag = 0            #the current flag the player has selected
 displayed_flag = 0          #the flag being shown to the user in wardrobe
@@ -54,6 +55,9 @@ fallAnimation = 0           #defines the fall animation timer
 onGroundTimer = 0           #defines extra time ong ground is in place for improved edge jumping #not implemented
 velocity = 10               #walking speed
 keyPressed = False          #weather or not movment key was pressed
+dashes = 0                  #how many dashes you have
+dashing = 0                 #defines the variable for dashing time
+direction = 'pos'           #direction player is moving
 
 #This list is up here purly so it is defined before data is loaded
 flags_purchase = [
@@ -110,6 +114,7 @@ sign_mask = pygame.mask.from_surface(sign)
 coin_mask = pygame.mask.from_surface(coin)
 spikeBall_mask = pygame.mask.from_surface(spikeBall)
 platform_mask = pygame.mask.from_surface(platform)
+powerUp_mask = pygame.mask.from_surface(powerUp_dash)
 
 clouds.append(cloudone)
 clouds.append(cloudtwo)
@@ -146,7 +151,7 @@ coins=[
 ]
 
 powerUps = [
-    [0,ground_x+200,300]
+    [1,ground_x+2490,55]
 ]
 
 #
@@ -769,13 +774,13 @@ def DeBugUI():
     level_coords_text = debug_font.render(f"ground: x:{ground_x-player_x}",True,colours.red)
     levelID_text = debug_font.render(f"Level_ID: {levelID}",True,colours.red)
     levelStars_text = debug_font.render(f"Stars: {levelStars}",True,colours.red)
-    totalCoins_text = debug_font.render(f"Total_Coins: {totalCoins}",True,colours.red)
+    dashes_text = debug_font.render(F"dashes: {dashes}",True,colours.red)
 
     screen.blit(player_coords_text,(0,0))
     screen.blit(level_coords_text,(0,18))
     screen.blit(levelID_text,(0,36))
     screen.blit(levelStars_text,(0,54))
-    screen.blit(totalCoins_text,(0,72))
+    screen.blit(dashes_text,(0,72))
 
 def SaveGame():
     data = {
@@ -829,6 +834,7 @@ while running:
         coins_editable = copy.deepcopy(coins)
         platforms_editable = copy.deepcopy(platforms)
         spikeBalls_editable = copy.deepcopy(spikeBalls)
+        powerUps_editable = copy.deepcopy(powerUps)
         winContinue = False
         isLevelChange = False
     
@@ -847,6 +853,12 @@ while running:
 
             if event.key == pygame.K_9:
                 SaveGame()
+
+            #keybinding for dashing
+            if event.key == key_dash:
+                if dashes > 0:
+                    dashes -= 1
+                    dashing = 10
 
     #movement keys, these are smoother beacuse they dont rely on the small wait
     keys = pygame.key.get_pressed() 
@@ -872,6 +884,7 @@ while running:
                     current_sprite = pingos[current_pingo][1]
                 movingleft -=1
             if player_x == 200:
+                direction = 'neg'
                 if ground_x <= -velocity:
                     ground_x+=velocity
 
@@ -885,6 +898,10 @@ while running:
                             i[1] += velocity
 
                     for i in platforms_editable:
+                        if i[0] == levelID:
+                            i[1] += velocity
+
+                    for i in powerUps_editable:
                         if i[0] == levelID:
                             i[1] += velocity
 
@@ -907,6 +924,8 @@ while running:
                 movingright-=1
         
             if ground_x > -currentExit_x+360:
+                if direction != 'neg':
+                    direction = 'pos'
                 ground_x-=velocity
 
                 for i in coins_editable:
@@ -921,12 +940,53 @@ while running:
                     if i[0] == levelID:
                         i[1] -= velocity
 
+                for i in powerUps_editable:
+                    if i[0] == levelID:
+                        i[1] -= velocity
+
                 exitGates[levelID][0] -=velocity
             else:
                 if player_x <= 370:
                     player_x+=velocity
                 else:
                     WinCon()
+
+    #logic for dashing
+    if dashing != 0:
+        if direction == 'pos' or direction == 'non':
+            ground_x -= 40
+
+            for i in coins_editable:
+                        if i[0] == levelID:
+                            i[1] -= 40
+
+            for i in spikeBalls_editable:
+                if i[0] == levelID:i[1] -= 40
+
+            for i in platforms_editable:
+                if i[0] == levelID:i[1] -= 40
+
+            for i in powerUps_editable:
+                if i[0] == levelID:i[1] -= 40
+
+            exitGates[levelID][0] -= 40
+
+        if direction == 'neg':
+            ground_x += 40
+
+            for i in spikeBalls_editable:
+                if i[0] == levelID:i[1] += 40
+
+            for i in platforms_editable:
+                if i[0] == levelID:i[1] += 40
+
+            for i in powerUps_editable:
+                if i[0] == levelID:i[1] += 40
+
+            exitGates[levelID][0] += 40
+
+        dashing -= 1
+
 
     #Makes the background
     screen.blit(background,(0,0))
@@ -960,6 +1020,7 @@ while running:
 
     screen.blit(exit_gate,(exitGates[levelID][0],exitGates[levelID][1]))
 
+    
     #handling the coin rendering and collision in one for loop to save performance
     for j , i in enumerate(coins_editable):
         if i[0] == levelID:
@@ -970,6 +1031,17 @@ while running:
             if coinCollision:
                 collected_coins+=1
                 del coins_editable[j]
+
+    for k , l in enumerate(powerUps_editable):
+        if l[0] == levelID:
+            screen.blit(powerUp_dash,(l[1],l[2]))
+
+            powerUpOffset = (player_x - l[1],player_y - l[2])
+            powerUpCollision = powerUp_mask.overlap(powerUp_mask,powerUpOffset)
+            if powerUpCollision:
+                dashes += 1
+                del powerUps_editable[k]
+
 
     #
     #moving platform code
@@ -1140,6 +1212,7 @@ while running:
     if renderDebug:
         DeBugUI()
 
+    direction = 'non'
 
     pygame.display.flip()
     clock.tick(60)

@@ -90,6 +90,9 @@ spikeBall_one = pygame.transform.scale(spikeBall_one,(64,64))
 platform = pygame.image.load("assets/level_objects/platform.png")
 platform = pygame.transform.scale(platform,(64*4,16*4))
 
+powerUp_dash = pygame.image.load("assets/powerUps/dash.png")
+powerUp_dash = pygame.transform.scale(powerUp_dash,(64,64))
+
 #-----Flags
 flag_default_one = pygame.image.load("assets/flags/flagOne.png")
 flag_default_one = pygame.transform.scale(flag_default_one,(32*4,16*4))
