@@ -87,6 +87,8 @@ with open("user_data/purchases.json") as file:
 pixel_font = pygame.font.Font("fonts/upheavtt.ttf",40)
 header_font = pygame.font.Font("fonts/buble.TTF",80)
 subTitle_font = pygame.font.Font("fonts/buble.TTF",50)
+smallText_font = pygame.font.Font("fonts/upheavtt.ttf",20)
+
 signText_001 = pixel_font.render("Walk up to the wall!",True,colours.black)
 signText_002 = pixel_font.render("trust me it wont hurt.",True,colours.black)
 signText_003 = pixel_font.render("See...you rolled up that wall ",True,colours.black)
@@ -159,7 +161,7 @@ levels = [
 
 starPoints = [
     [500,2000,5000],
-    [0,0,0]
+    [500,2000,4000]
 ]
 
 exitGates=[
@@ -293,6 +295,10 @@ def MainMenu():
 
 def LevelSelect():
     global levelID , buttonCooldown , isLevelChange
+    level_one_text = smallText_font.render("Level: 1",True,colours.white)
+    level_two_text = smallText_font.render("level: 2",True,colours.white)
+    winStar_select = pygame.transform.scale(winStar,(32,32))
+    winStar_select_empty = pygame.transform.scale(empty_winStar,(32,32))
     levelRun = True
     selectedLevel = levelID
     while levelRun:
@@ -310,16 +316,31 @@ def LevelSelect():
                     MainMenu()
 
         screen.blit(levelSelectBackground,(0,0))
-        
+
+        #code for level one button
         if selectedLevel == 0:
             screen.blit(levelButton_selected,(112,84))
         else:screen.blit(levelButton,(112,84))
+        screen.blit(level_one_text,(108,159))
+        for i in range(3):
+            if levelStars[0] >= i+1:
+                screen.blit(winStar_select,((i*32)+95,181))
+            else:screen.blit(winStar_select_empty,((i*32)+95,181))
         
-        if selectedLevel == 1:
-            screen.blit(levelButton_selected,(304,180))
-        else:screen.blit(levelButton,(304,180))
+        #code for level two button
+        if levelStars[0] == 3:
+            if selectedLevel == 1:
+                screen.blit(levelButton_selected,(304,180))
+            else:screen.blit(levelButton,(304,180))
+        else:screen.blit(levelButton_disabled,(304,180))
+        screen.blit(level_two_text,(290,256))
+        for i in range(3):
+            if levelStars[1] >= i+1:
+                screen.blit(winStar_select,((i*32)+283,280))
+            else:screen.blit(winStar_select_empty,((i*32)+283,280))
 
-
+        #code for level three button
+        screen.blit(levelButton_disabled,(428,72))
 
         screen.blit(backButton,(10,screenHeight-backButton.get_height()-5))
         screen.blit(start_button,(650,screenHeight-backButton.get_height()-5))
@@ -331,9 +352,10 @@ def LevelSelect():
                 selectedLevel = 0
 
         if 304 < mouse_Pos[0] < 304+levelButton.get_width() and 180 < mouse_Pos[1] < 180+levelButton.get_height():
-            if selectedLevel != 1:screen.blit(levelButton_pressed,(304,180))
-            if mouse_Pressed[0]:
-                selectedLevel = 1
+            if levelStars[0] == 3:  
+                if selectedLevel != 1:screen.blit(levelButton_pressed,(304,180))
+                if mouse_Pressed[0]:
+                    selectedLevel = 1
         
         #operating buttons pressing logic
 

@@ -240,6 +240,9 @@ levelButton_pressed = pygame.transform.scale(levelButton_pressed,(15*4,15*4))
 levelButton_selected = pygame.image.load("assets/UI/levelMenu/levelButtonSelected.png")
 levelButton_selected = pygame.transform.scale(levelButton_selected,(15*4,15*4))
 
+levelButton_disabled = pygame.image.load("assets/UI/levelMenu/levelButtonSelected_disabled.png")
+levelButton_disabled = pygame.transform.scale(levelButton_disabled,(15*4,15*4))
+
 #-----levels
 firstLevel = pygame.image.load("assets/levels/firstlevel.png")
 firstLevel = pygame.transform.scale(firstLevel,(5120,600))
