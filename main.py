@@ -45,7 +45,7 @@ saving = 0                  #defines the saving timer for showing save icon
 key_jump = pygame.K_UP      #keybind for the jump button
 key_left = pygame.K_LEFT    #keybind for the walk left button
 key_right = pygame.K_RIGHT  #keybind for the walk right button
-key_dash = pygame.K_RSHIFT  #keybind for dashing
+key_dash = pygame.K_SLASH   #keybind for dashing
 current_pingo = 0           #the current pingo the player has selected
 current_flag = 0            #the current flag the player has selected
 displayed_flag = 0          #the flag being shown to the user in wardrobe
@@ -76,6 +76,7 @@ with open("user_data/settings.json","r") as file:
         key_jump = load["jump"]
         key_left = load["left"]
         key_right =load["right"]
+        key_dash = load["dash"]
         renderDebug = load["save"]
         levelStars = load["stars"]
         current_pingo = load["pingo"]
@@ -102,6 +103,10 @@ signText_003 = pixel_font.render("See...you rolled up that wall ",True,colours.b
 signText_004 = pixel_font.render("like a boss!", True, colours.black)
 signText_005 = pixel_font.render("Watch out for spike balls...",True,colours.black)
 signText_006 = pixel_font.render("They hurt quite alot!",True,colours.black)
+signText_007 = pixel_font.render("Whats that gray ball...",True,colours.black)
+signText_008 = pixel_font.render("Ive heard it lets you dash!",True,colours.black)
+
+dashable_text = pixel_font.render("Dash!",True,colours.black)
 
 #loads all the  image assets from imageLoading.py
 from imageLoading import *
@@ -210,6 +215,17 @@ pingos = [
         player_fall_gold,
         player_fall_two_gold,
         pingoGoldUI
+    ],
+    [
+        player_sprite_dragon,
+        player_left_dragon,
+        player_left_walk_dragon,
+        player_right_dragon,
+        player_right_walk_dragon,
+        player_roll_dragon,
+        player_fall_dragon,
+        player_fall_dragon_two,
+        player_dragonUI
     ]
 ]
 
@@ -399,7 +415,7 @@ def LevelSelect():
         clock.tick(120)
 
 def Settings():
-    global key_jump , key_left , key_right
+    global key_jump , key_left , key_right , key_dash
     settingsRun = True
     changingKey = ''
     margin = [80,350] #This is a new system im testing from commit 13. all uniform items like menus will have a margin for base placment. making things easier to code
@@ -410,6 +426,8 @@ def Settings():
     leftCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_left)}",True,colours.white)
     rightSetting_text = pixel_font.render("Right Key:",True,colours.white)
     rightCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_right)}",True,colours.white)
+    dashSetting_text = pixel_font.render("Dash Key:",True,colours.white)
+    dashCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_dash)}",True,colours.white)
 
     while settingsRun:
         mouse_Pos = pygame.mouse.get_pos()
@@ -439,6 +457,11 @@ def Settings():
                         key_right = event.key
                         rightCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_right)}",True,colours.white)
                         changingKey = ''
+                    if changingKey == 'dash':
+                        key_dash = event.key
+                        dashCurrentKey_text = pixel_font.render(f"{pygame.key.name(key_dash)}",True,colours.white)
+                        changingKey = ''
+
 
         screen.fill(colours.sky)
         screen.blit(topBar,(0,0))
@@ -458,6 +481,10 @@ def Settings():
         screen.blit(inputBackground,(margin[1],280))
         screen.blit(rightCurrentKey_text,(margin[1]+20,290))
 
+        screen.blit(dashSetting_text,(margin[0],360))
+        screen.blit(inputBackground,(margin[1],350))
+        screen.blit(dashCurrentKey_text,(margin[1]+20,360))
+
 
         if 10 < mouse_Pos[0] < 10+backButton.get_width() and 10 < mouse_Pos[1] < 10+backButton.get_height():
             screen.blit(backButton_Pressed,(10,10))
@@ -475,7 +502,10 @@ def Settings():
                     changingKey = 'left'
             if 280 < mouse_Pos[1] < 280+inputBackground.get_height():
                 if mouse_Pressed[0]:
-                    changingKey = 'right'           
+                    changingKey = 'right'
+            if 350 < mouse_Pos[1] < 350+inputBackground.get_height():
+                if mouse_Pressed[0]:
+                    changingKey = 'dash'
 
         pygame.display.flip()
         clock.tick(120)
@@ -789,6 +819,7 @@ def SaveGame():
         "jump":key_jump,
         "left":key_left,
         "right":key_right,
+        "dash":key_dash,
         "save":renderDebug,
         "stars":levelStars,
         "pingo":current_pingo,
@@ -827,6 +858,7 @@ while running:
         player_x = 200
         player_y = 400
         ground_x = 0
+        dashes = 0
         score = 0
         time = 0
         collected_coins = 0
@@ -1014,6 +1046,9 @@ while running:
         screen.blit(sign,(ground_x+1900,500))
         screen.blit(sign,(ground_x+3900,500))
 
+    if levelID == 1:
+        screen.blit(sign,(ground_x+1950,59))
+
     screen.blit(levels[levelID][0],(ground_x,0))
     
     screen.blit(current_sprite,(player_x,player_y))
@@ -1108,9 +1143,6 @@ while running:
                 exitGates[levelID][0] = currentExit_x
                 Dead()
 
-            
-
-
     #
     #  UI rendering -- over all the other elements
     #
@@ -1126,9 +1158,13 @@ while running:
         screen.blit(coin_icon,((screenWidth-clock_text.get_width())-145,8))
         screen.blit(coin_text,(((screenWidth-clock_text.get_width())-coin_text.get_width())-70,0))
 
+        if dashes != 0:
+            screen.blit(dashable_text,(((screenWidth-clock_text.get_width())-coin_text.get_width())-(dashable_text.get_width()*2)+10,0))
+
     #
     #Collisions handling
     #
+    #SIGN COLLISION HANDLING
     if levelID == 0:
         signOffset_first = (player_x - (ground_x+850),player_y - 500)
         signcollision_first = sign_mask.overlap(player_mask,signOffset_first)
@@ -1150,6 +1186,14 @@ while running:
             screen.blit(messageBox,(50,50))
             screen.blit(signText_005,(70,80))
             screen.blit(signText_006,(70,120))
+
+    if levelID == 1:
+        signOffset_first_levelTwo = (player_x - (ground_x+1950), player_y - 59)
+        signCollision_first_levelTwo = sign_mask.overlap(player_mask,signOffset_first_levelTwo)
+        if signCollision_first_levelTwo:
+            screen.blit(messageBox,(50,screenHeight-messageBox.get_height()-50))
+            screen.blit(signText_007,(70,420))
+            screen.blit(signText_008,(70,460))
 
 
     offset = (player_x - ground_x, player_y - 0)

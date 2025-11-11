@@ -61,7 +61,32 @@ player_right_walk_gold = pygame.transform.scale(player_right_walk_gold,(64,64))
 player_roll_gold = pygame.image.load("assets/player/gold/ballSpriteGold.png")
 player_roll_gold = pygame.transform.scale(player_roll_gold,(64,64))
 
+player_sprite_dragon = pygame.image.load("assets/player/dragon/still.png")
+player_sprite_dragon = pygame.transform.scale(player_sprite_dragon,(64,64))
 
+player_left_dragon = pygame.image.load("assets/player/dragon/facing_left.png")
+player_left_dragon = pygame.transform.scale(player_left_dragon,(64,64))
+
+player_left_walk_dragon = pygame.image.load("assets/player/dragon/moving_left.png")
+player_left_walk_dragon = pygame.transform.scale(player_left_walk_dragon,(64,64))
+
+player_right_dragon = pygame.image.load("assets/player/dragon/facing_right.png")
+player_right_dragon = pygame.transform.scale(player_right_dragon,(64,64))
+
+player_right_walk_dragon = pygame.image.load("assets/player/dragon/moving_right.png")
+player_right_walk_dragon = pygame.transform.scale(player_right_walk_dragon,(64,64))
+
+player_roll_dragon = pygame.image.load("assets/player/dragon/roll.png")
+player_roll_dragon = pygame.transform.scale(player_roll_dragon,(64,64))
+
+player_fall_dragon = pygame.image.load("assets/player/dragon/fall1.png")
+player_fall_dragon = pygame.transform.scale(player_fall_dragon,(64,64))
+
+player_fall_dragon_two = pygame.image.load("assets/player/dragon/fall2.png")
+player_fall_dragon_two = pygame.transform.scale(player_fall_dragon_two,(64,64))
+
+player_dragonUI = pygame.image.load("assets/player/dragon/stillUI.png")
+player_dragonUI = pygame.transform.scale(player_dragonUI,(128,128))
 
 panorama = pygame.image.load("assets/background/panorama.png")
 panorama = pygame.transform.scale(panorama,(256*5,64*5))
