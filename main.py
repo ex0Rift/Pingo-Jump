@@ -22,7 +22,7 @@ movingleft = 0              #default for moving left animation
 movingright = 0             #default for moving right anumation
 activeClouds=[]             #defining list for clouds data
 clouds = []                 #defining useable cloud list
-levelStars = [0,0]          #defins the list where the quantity of stars you have for a level is stored
+levelStars = [0,0,0]        #defins the list where the quantity of stars you have for a level is stored
 keybox = True               #determins whether or not to show the keybind turotial
 isLevelChange = True        #activates part to increment what level it is currently
 levelID = 0                 #This is what level is currently in use 
@@ -115,6 +115,7 @@ from imageLoading import *
 player_mask = pygame.mask.from_surface(player_sprite)
 firstLevel_mask = pygame.mask.from_surface(firstLevel)
 secondLevel_mask = pygame.mask.from_surface(secondLevel)
+thirdLevel_mask = pygame.mask.from_surface(thirdLevel)
 sign_mask = pygame.mask.from_surface(sign)
 coin_mask = pygame.mask.from_surface(coin)
 spikeBall_mask = pygame.mask.from_surface(spikeBall)
@@ -174,21 +175,25 @@ platforms = [
 
 levels = [
     [firstLevel,firstLevel_mask],
-    [secondLevel,secondLevel_mask]
+    [secondLevel,secondLevel_mask],
+    [thirdLevel,thirdLevel_mask]
 ]
 
 starPoints = [
     [500,2000,5000],
-    [500,2000,4000]
+    [500,2000,4000],
+    [0,0,0]
 ]
 
 exitGates=[
     [ground_x+4672,395],
-    [ground_x+4672,395]
+    [ground_x+4672,380],
+    [ground_x+4672,380]
 ]
 
 panoramas = [
     panorama,
+    panorama_two,
     panorama_two
 ]
 
@@ -332,6 +337,7 @@ def LevelSelect():
     global levelID , buttonCooldown , isLevelChange
     level_one_text = smallText_font.render("Level: 1",True,colours.white)
     level_two_text = smallText_font.render("level: 2",True,colours.white)
+    level_three_text = smallText_font.render("level: 3",True,colours.white)
     winStar_select = pygame.transform.scale(winStar,(32,32))
     winStar_select_empty = pygame.transform.scale(empty_winStar,(32,32))
     levelRun = True
@@ -375,7 +381,16 @@ def LevelSelect():
             else:screen.blit(winStar_select_empty,((i*32)+283,280))
 
         #code for level three button
-        screen.blit(levelButton_disabled,(428,72))
+        if levelStars[1] == 2:
+            if selectedLevel == 2:
+                screen.blit(levelButton_selected,(428,72))
+            else:screen.blit(levelButton,(428,72))
+        else:screen.blit(levelButton_disabled,(428,72))
+        screen.blit(level_three_text,(418,145))
+        for i in range(3):
+            if levelStars[2] >= i+1:
+                screen.blit(winStar_select,((i*32)+410,165))
+            else:screen.blit(winStar_select_empty,((i*32)+410,165))
 
         screen.blit(backButton,(10,screenHeight-backButton.get_height()-5))
         screen.blit(start_button,(650,screenHeight-backButton.get_height()-5))
@@ -391,6 +406,12 @@ def LevelSelect():
                 if selectedLevel != 1:screen.blit(levelButton_pressed,(304,180))
                 if mouse_Pressed[0]:
                     selectedLevel = 1
+
+        if 428 < mouse_Pos[0] < 428+levelButton.get_width() and 72 < mouse_Pos[1] < 72+levelButton.get_height():
+            if levelStars[1] == 2:
+                if selectedLevel !=2:screen.blit(levelButton_pressed,(428,72))
+                if mouse_Pressed[0]:
+                    selectedLevel = 2
         
         #operating buttons pressing logic
 

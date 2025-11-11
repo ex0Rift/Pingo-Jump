@@ -281,6 +281,9 @@ firstLevel = pygame.transform.scale(firstLevel,(5120,600))
 secondLevel = pygame.image.load("assets/levels/secondLevel.png")
 secondLevel = pygame.transform.scale(secondLevel,(5120,600))
 
+thirdLevel = pygame.image.load("assets/levels/thirdLevel.png")
+thirdLevel = pygame.transform.scale(thirdLevel,(5120,600))
+
 
 #-----clouds
 cloudone = pygame.image.load("assets/clouds/cloudone.png")
