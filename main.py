@@ -153,7 +153,11 @@ coins=[
     [1,ground_x+3650,240],
     [1,ground_x+2580,300],
     [1,ground_x+2580,350],
-    [1,ground_x+2580,400]
+    [1,ground_x+2580,400],
+    [2,ground_x+980,205],
+    [2,ground_x+1470,195],
+    [2,ground_x+1990,189],
+    [2,ground_x+3700,402]
 ]
 
 powerUps = [
@@ -166,7 +170,7 @@ powerUps = [
 spikeBalls = [
     [0,ground_x+4000,508,4000,4500,'pos'],
     [1,ground_x+300,490,300,850,'pos'],
-    [2,ground_x+1500,162,1500,1900,'pos']
+    [2,ground_x+1600,162,1600,1900,'pos']
 ]
 
 platforms = [
@@ -183,19 +187,19 @@ levels = [
 starPoints = [
     [500,2000,5000],
     [500,2000,4000],
-    [0,0,0]
+    [100,800,1600]
 ]
 
 exitGates=[
     [ground_x+4672,395],
     [ground_x+4672,380],
-    [ground_x+4672,380]
+    [ground_x+4680,395]
 ]
 
 panoramas = [
     panorama,
     panorama_two,
-    panorama_two
+    panorama_three
 ]
 
 
@@ -382,7 +386,7 @@ def LevelSelect():
             else:screen.blit(winStar_select_empty,((i*32)+283,280))
 
         #code for level three button
-        if levelStars[1] == 4:
+        if levelStars[1] >= 2:
             if selectedLevel == 2:
                 screen.blit(levelButton_selected,(428,72))
             else:screen.blit(levelButton,(428,72))
@@ -409,7 +413,7 @@ def LevelSelect():
                     selectedLevel = 1
 
         if 428 < mouse_Pos[0] < 428+levelButton.get_width() and 72 < mouse_Pos[1] < 72+levelButton.get_height():
-            if levelStars[1] == 4:
+            if levelStars[1] >= 2:
                 if selectedLevel !=2:screen.blit(levelButton_pressed,(428,72))
                 if mouse_Pressed[0]:
                     selectedLevel = 2
@@ -430,8 +434,8 @@ def LevelSelect():
                     levelID = selectedLevel
 
         #mini debug for this screen
-        debug_text = pixel_font.render(f"x:{mouse_Pos[0]} y:{mouse_Pos[1]}",True,colours.red)
-        screen.blit(debug_text,(0,0))
+        #debug_text = pixel_font.render(f"x:{mouse_Pos[0]} y:{mouse_Pos[1]}",True,colours.red)
+        #screen.blit(debug_text,(0,0))
 
         pygame.display.flip()
         clock.tick(120)
