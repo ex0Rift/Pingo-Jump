@@ -165,7 +165,8 @@ powerUps = [
 #
 spikeBalls = [
     [0,ground_x+4000,508,4000,4500,'pos'],
-    [1,ground_x+300,490,300,850,'pos']
+    [1,ground_x+300,490,300,850,'pos'],
+    [2,ground_x+1500,162,1500,1900,'pos']
 ]
 
 platforms = [
@@ -381,7 +382,7 @@ def LevelSelect():
             else:screen.blit(winStar_select_empty,((i*32)+283,280))
 
         #code for level three button
-        if levelStars[1] == 2:
+        if levelStars[1] == 4:
             if selectedLevel == 2:
                 screen.blit(levelButton_selected,(428,72))
             else:screen.blit(levelButton,(428,72))
@@ -408,7 +409,7 @@ def LevelSelect():
                     selectedLevel = 1
 
         if 428 < mouse_Pos[0] < 428+levelButton.get_width() and 72 < mouse_Pos[1] < 72+levelButton.get_height():
-            if levelStars[1] == 2:
+            if levelStars[1] == 4:
                 if selectedLevel !=2:screen.blit(levelButton_pressed,(428,72))
                 if mouse_Pressed[0]:
                     selectedLevel = 2
